@@ -1,17 +1,18 @@
 import { useState, useEffect } from "react"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useNavigate, Link, useLocation } from "react-router-dom"
-import { motion, AnimatePresence } from "framer-motion"
+
+const navLinks = [
+  { href: "#how-it-works", label: "How it works" },
+  { href: "#trust-safety", label: "Trust & safety" },
+  { href: "#contact", label: "Contact" },
+]
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const navigate = useNavigate()
-  const location = useLocation()
-
-  const isChatPage = location.pathname === "/chat"
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -22,89 +23,100 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "w-full transition-all duration-300 py-4 px-6 md:px-8",
-        scrolled && "shadow-sm bg-white/80 backdrop-blur-md sticky top-0 z-40"
+        "fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-xl transition-all duration-300",
+        scrolled ? "py-3" : "py-5",
       )}
     >
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group relative z-50">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-200">
-            IS
-          </div>
-          <div className="text-lg font-bold tracking-tight">
-            <span className="text-gray-900">Insure</span>
-            <span className="text-blue-600">Sense</span>
-          </div>
-        </Link>
-
-        {/* Right Section - Desktop */}
-        <div className="hidden sm:flex items-center gap-4">
-          {!isChatPage && (
-            <>
-              <Button
-                variant="ghost"
-                className="text-gray-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
-              >
-                Log in
-              </Button>
-              <Button
-                className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 shadow-md shadow-blue-200/50 transition-all hover:scale-105"
-                onClick={() => navigate('/chat')}
-              >
-                Get Started
-              </Button>
-            </>
+      <div className="max-w-6xl mx-auto px-4">
+        <nav
+          className={cn(
+            "flex items-center justify-between px-6 rounded-full bg-white/20 backdrop-blur-md border border-purple-300/60 transition-all duration-300",
+            scrolled ? "py-2 px-4 shadow-xl shadow-purple-200/20" : "py-3",
           )}
-          {isChatPage && (
-            <Button
-              variant="ghost"
-              className="text-gray-600 hover:text-blue-700 hover:bg-blue-50 font-medium"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          {/* Logo (clickable) */}
+          <a href="/" className="flex items-center gap-3 group">
+            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg">
+              IS
+            </div>
+            <div className="text-lg font-semibold tracking-tight flex gap-1">
+              <span className="text-blue-900 group-hover:text-blue-800">Insure</span>
+              <span className="text-blue-800 group-hover:text-blue-700">Sense</span>
+            </div>
+          </a>
+
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-medium text-gray-800 hover:text-purple-600 transition-colors relative group"
+              >
+                {link.label}
+                <span className="absolute bottom-0 left-0 h-0.5 w-0 bg-purple-600 transition-all duration-300 group-hover:w-full" />
+              </a>
+            ))}
+          </div>
+
+          {/* Right Section - CTA */}
+          <div className="flex items-center gap-3">
+            <Link to="/signin" className="hidden sm:block text-sm font-medium text-gray-800 hover:text-purple-600 px-4 py-2 transition-colors">
+              Login
+            </Link>
+            <Link to="/signup">
+              <Button className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 shadow-lg shadow-purple-200/60 transition-all">
+                Start Investing
+              </Button>
+            </Link>
+
+            {/* Mobile menu button */}
+            <button
+              className="flex lg:hidden ml-2 p-2 hover:bg-purple-50 rounded-lg transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
             >
-              Log out
-            </Button>
-          )}
-        </div>
-
-        {/* Mobile menu button - Hide on Chat Page to avoid conflict with Sidebar toggle */}
-        {!isChatPage && (
-          <button
-            className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors relative z-50"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
-          </button>
-        )}
+              {mobileOpen ? <X className="h-5 w-5 text-purple-600" /> : <Menu className="h-5 w-5 text-purple-600" />}
+            </button>
+          </div>
+        </nav>
       </div>
 
-      {/* Mobile menu Overlay */}
-      <AnimatePresence>
-        {mobileOpen && !isChatPage && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 shadow-xl overflow-hidden z-40"
-          >
-            <div className="flex flex-col p-6 gap-4">
-              <Button
-                className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium py-6 shadow-lg shadow-blue-200/30"
-                onClick={() => {
-                  navigate('/chat')
-                  setMobileOpen(false)
-                }}
-              >
-                Get Started
-              </Button>
-              <Button variant="outline" className="w-full rounded-xl py-6 border-2 border-gray-100 hover:bg-gray-50 hover:border-gray-200 text-gray-700">
-                Log in
-              </Button>
-            </div>
-          </motion.div>
+      {/* Mobile menu */}
+      <div
+        className={cn(
+          "lg:hidden mt-3 mx-4 border-2 border-purple-600 rounded-2xl bg-white shadow-sm transition-all duration-300 overflow-hidden max-w-6xl mx-auto",
+          mobileOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0",
         )}
-      </AnimatePresence>
+      >
+        <div className="flex flex-col gap-1 p-4">
+          {navLinks.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              onClick={() => setMobileOpen(false)}
+              className="px-4 py-3 text-sm font-medium text-gray-800 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+            >
+              {link.label}
+            </a>
+          ))}
+          <hr className="my-2 border-purple-200" />
+          <Link
+            to="/signin"
+            onClick={() => setMobileOpen(false)}
+            className="w-full text-left px-4 py-3 text-sm font-medium text-gray-800 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+          >
+            Login
+          </Link>
+          <Link to="/signup" onClick={() => setMobileOpen(false)}>
+            <Button className="w-full rounded-full bg-purple-600 hover:bg-purple-700 text-white font-medium mt-2">
+              Start Investing
+            </Button>
+          </Link>
+        </div>
+      </div>
     </header>
   )
 }
