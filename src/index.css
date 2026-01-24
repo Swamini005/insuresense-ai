@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  /* PhonePe Brand Colors */
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(240 100% 10%);
+  
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 100% 10%);
+  
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(240 100% 10%);
+  
+  --color-primary: hsl(260 100% 30%); /* PhonePe Purple */
+  --color-primary-foreground: hsl(0 0% 100%);
+  
+  --color-secondary: hsl(260 20% 95%); /* Light purple background */
+  --color-secondary-foreground: hsl(260 100% 30%);
+  
+  --color-muted: hsl(260 20% 96%);
+  --color-muted-foreground: hsl(240 10% 45%);
+  
+  --color-accent: hsl(260 20% 95%);
+  --color-accent-foreground: hsl(260 100% 30%);
+  
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  
+  --color-border: hsl(260 30% 85%); /* Light purple border */
+  --color-input: hsl(260 30% 85%);
+  --color-ring: hsl(260 100% 30%);
+  
+  --radius-lg: 0.5rem;
+  --radius-md: calc(var(--radius-lg) - 2px);
+  --radius-sm: calc(var(--radius-lg) - 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
