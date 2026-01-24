@@ -11,7 +11,7 @@ export interface Message {
 interface ChatWindowProps {
     messages: Message[]
     isTyping?: boolean
-    activeAgent: string
+    activeAgent: string | null
     greeting?: string
 }
 
@@ -33,10 +33,12 @@ export function ChatWindow({ messages, isTyping, activeAgent, greeting }: ChatWi
                         <h1 className="text-4xl font-serif text-gray-800 tracking-tight mb-4">
                             {greeting}
                         </h1>
-                        <div className="flex items-center gap-2 text-gray-400 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
-                            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-                            <span className="text-sm font-medium">Ready to assist with {activeAgent} insurance</span>
-                        </div>
+                        {activeAgent && (
+                            <div className="flex items-center gap-2 text-gray-400 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+                                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                <span className="text-sm font-medium">Ready to assist with {activeAgent} insurance</span>
+                            </div>
+                        )}
                     </div>
                 )}
 

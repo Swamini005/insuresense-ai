@@ -81,14 +81,14 @@ export function CustomSelect({
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -10, scale: 0.98 }}
                         transition={{ duration: 0.15, ease: "easeOut" }}
-                        className="absolute z-50 w-full mt-1 overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-lg"
+                        className="absolute z-50 min-w-full w-max mt-1 rounded-md border bg-popover text-popover-foreground shadow-lg max-w-[90vw]"
                     >
                         <div className="p-1">
                             {options.map((option) => (
                                 <div
                                     key={option.value}
                                     className={cn(
-                                        "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-2 pr-8 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                                        "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-2 pr-10 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
                                         value === option.value && "bg-accent text-accent-foreground font-medium"
                                     )}
                                     onClick={() => {
@@ -96,8 +96,7 @@ export function CustomSelect({
                                         setIsOpen(false)
                                     }}
                                 >
-                                    <span className="flex items-center gap-2 truncate">
-                                        {/* Add icons here if needed based on option value later */}
+                                    <span className="whitespace-nowrap">
                                         {option.label}
                                     </span>
                                     {value === option.value && (

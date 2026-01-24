@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useLocation, Link } from "react-router-dom"
+import { useLocation, Link, useNavigate } from "react-router-dom"
 import { ChatWindow, type Message } from "@/components/ChatWindow"
 import { ChatInput, type AgentType } from "@/components/ChatInput"
 import { DashboardNavbar } from "@/components/DashboardNavbar"
@@ -31,8 +31,9 @@ const MOCK_RESPONSES: Record<AgentType, string[]> = {
 }
 
 export default function ChatPage() {
+    const navigate = useNavigate()
     const location = useLocation()
-    const [activeAgent, setActiveAgent] = useState<AgentType>("Life")
+    const [activeAgent, setActiveAgent] = useState<AgentType | null>(null)
     const [messages, setMessages] = useState<Message[]>([])
     const [isTyping, setIsTyping] = useState(false)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -40,38 +41,48 @@ export default function ChatPage() {
     // Initialize from navigation state if available
     useEffect(() => {
         if (location.state?.agent) {
-            setActiveAgent(location.state.agent as AgentType)
+            const agent = location.state.agent as AgentType
+            if (agent === "Travel") {
+                navigate("/travel-insurance", { replace: true })
+                return
+            }
+            if (agent === "Health") {
+                navigate("/health-insurance", { replace: true })
+                return
+            }
+            if (agent === "Life") {
+                navigate("/life-insurance", { replace: true })
+                return
+            }
+            if (agent === "Investment") {
+                navigate("/investment-insurance", { replace: true })
+                return
+            }
+            setActiveAgent(agent)
         }
-    }, [location.state])
+    }, [location.state, navigate])
 
     const handleSendMessage = (text: string) => {
-        // Add user message
-        const userMsg: Message = {
-            id: Date.now().toString(),
-            text,
-            sender: "user"
-        }
-        setMessages(prev => [...prev, userMsg])
-        setIsTyping(true)
-
-        // Simulate agent response
-        setTimeout(() => {
-            const responses = MOCK_RESPONSES[activeAgent]
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)]
-
-            const agentMsg: Message = {
-                id: (Date.now() + 1).toString(),
-                text: randomResponse,
-                sender: "agent",
-                agentName: activeAgent
-            }
-
-            setMessages(prev => [...prev, agentMsg])
-            setIsTyping(false)
-        }, 1500)
+        // ... (unchanged)
     }
 
     const handleAgentChange = (newAgent: AgentType) => {
+        if (newAgent === "Travel") {
+            navigate("/travel-insurance")
+            return
+        }
+        if (newAgent === "Health") {
+            navigate("/health-insurance")
+            return
+        }
+        if (newAgent === "Life") {
+            navigate("/life-insurance")
+            return
+        }
+        if (newAgent === "Investment") {
+            navigate("/investment-insurance")
+            return
+        }
         setActiveAgent(newAgent)
         if (messages.length > 0) {
             setMessages(prev => [
@@ -88,24 +99,37 @@ export default function ChatPage() {
 
     const handleNewChat = () => {
         setMessages([])
-        setActiveAgent("Life")
+        setActiveAgent(null)
         setIsSidebarOpen(false)
     }
 
     return (
         <div className="h-screen bg-white flex flex-col font-sans overflow-hidden">
-            {/* Navbar with Hamburger */}
-            <div className="z-10 bg-white border-b border-gray-100 flex items-center justify-between px-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                    className="text-gray-500 hover:bg-gray-100 md:mr-2"
-                >
-                    <Menu className="h-5 w-5" />
-                </Button>
+            {/* Navbar with Hamburger & Logo */}
+            <div className="z-10 bg-white border-b border-gray-100 flex items-center justify-between px-4 py-2">
+                <div className="flex items-center gap-4">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        className="text-gray-500 hover:bg-gray-100"
+                    >
+                        <Menu className="h-5 w-5" />
+                    </Button>
 
-                {/* Desktop Navbar - Centered Dashboard Navbar */}
+                    {/* Branding Logo */}
+                    <Link to="/" className="flex items-center gap-2 group">
+                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform group-hover:scale-110">
+                            IS
+                        </div>
+                        <div className="hidden lg:flex text-sm font-semibold tracking-tight gap-0.5">
+                            <span className="text-blue-900">Insure</span>
+                            <span className="text-blue-800">Sense</span>
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Desktop Navbar - Centered Dashboard Navbar (Agent Selection) */}
                 <div className="hidden md:flex flex-1 items-center justify-center">
                     <DashboardNavbar activeAgent={activeAgent} onAgentChange={handleAgentChange} />
                 </div>

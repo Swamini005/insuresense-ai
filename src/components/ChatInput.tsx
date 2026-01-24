@@ -9,7 +9,7 @@ export type AgentType = "Life" | "Health" | "Travel" | "Investment"
 interface ChatInputProps {
     onSendMessage: (message: string) => void
     disabled?: boolean
-    activeAgent: AgentType
+    activeAgent: AgentType | null
     onAgentChange: (agent: AgentType) => void
 }
 
@@ -105,8 +105,8 @@ export function ChatInput({ onSendMessage, disabled, activeAgent, onAgentChange 
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`Message ${activeAgent} Agent...`}
-                    disabled={disabled}
+                    placeholder={activeAgent ? `Message ${activeAgent} Agent...` : "Select an agent to start..."}
+                    disabled={disabled || !activeAgent}
                     className="flex-1 bg-transparent py-2 text-sm outline-none text-gray-800 placeholder:text-gray-400"
                 />
 
