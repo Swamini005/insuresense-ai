@@ -6,6 +6,8 @@ import mastraRoutes from './backend/routes/mastra.routes.js';
 import healthRoutes from './backend/routes/health.routes.js';
 import travelRoutes from './backend/routes/travel.routes.js';
 import investmentRoutes from './backend/routes/investment.routes.js';
+import lifeRoutes from './backend/routes/life.routes.js';
+import chatRoutes from './backend/routes/chat.routes.js';
 
 dotenv.config();
 
@@ -22,10 +24,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/insuresen
     .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes
-app.use('/api/mastra', mastraRoutes);
-app.use('/health', healthRoutes); // Backend health check
+// app.use('/api/mastra', mastraRoutes); // Commenting out until mastra is fully setup if needed, or keep it.
+app.use('/api/health', healthRoutes);
 app.use('/api/travel', travelRoutes);
 app.use('/api/investment', investmentRoutes);
+app.use('/api/life', lifeRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Global Error Handler
 app.use((err, req, res, next) => {

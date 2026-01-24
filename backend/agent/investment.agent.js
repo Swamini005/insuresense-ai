@@ -1,4 +1,4 @@
-import { Agent } from "@mastra/core";
+
 import { getGeminiModel } from "../lib/gemini.js";
 import { InvestmentMemory } from "../memory/investment.memory.js";
 import { generateEmbedding } from "../utils/vector.utils.js";
@@ -14,25 +14,16 @@ function cosineSimilarity(vecA, vecB) {
     normB += vecB[i] * vecB[i];
   }
 
+  if (normA === 0 || normB === 0) return 0;
   return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
-export const InvestmentAgent = new Agent({
-  name: "investment-agent",
-  description: "Expert investment analyst agent using recent investment news",
-  model: getGeminiModel(),
+export const runInvestmentAgent = async (input, userProfile = {}) => {
+  if (!input) {
+    throw new Error("Prompt is required");
+  }
 
-  instructions: `
-You are an expert Investment Analyst.
-Answer user questions using the most relevant recent investment news.
-If the context is insufficient, say so clearly but infer responsibly from general investment knowledge.
-`,
-
-  run: async ({ input }) => {
-    if (!input) {
-      throw new Error("Prompt is required");
-    }
-
+  try {
     const userEmbedding = await generateEmbedding(input);
     const allMemories = await InvestmentMemory.find({});
 
@@ -50,21 +41,29 @@ If the context is insufficient, say so clearly but infer responsibly from genera
 
     const contextText = topContext
       .map(m => `
-Title: ${m.metadata.title}
-Source: ${m.metadata.source}
-Content: ${m.fullText}
+    Title: ${m.metadata.title}
+    Source: ${m.metadata.source}
+    Content: ${m.fullText}
             `.trim())
       .join("\n---\n");
 
     const finalPrompt = `
-Recent Investment News:
-${contextText}
+    You are an expert Investment Analyst.
+    Answer user questions using the most relevant recent investment news.
+    Also consider the user's profile if provided.
+    
+    User Profile:
+    ${JSON.stringify(userProfile, null, 2)}
 
-User Question:
-${input}
+    Recent Investment News:
+    ${contextText}
+
+    User Question:
+    ${input}
         `.trim();
 
-    const result = await getGeminiModel().generateContent(finalPrompt);
+    const model = getGeminiModel();
+    const result = await model.generateContent(finalPrompt);
     const text = result.response.text();
 
     return {
@@ -74,5 +73,8 @@ ${input}
         url: c.metadata.url
       }))
     };
+  } catch (error) {
+    console.error("Error in InvestmentAgent:", error);
+    throw error;
   }
-});
+};
