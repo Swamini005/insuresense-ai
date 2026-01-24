@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react"
-import { useLocation } from "react-router-dom"
+import { useLocation, Link } from "react-router-dom"
 import { ChatWindow, type Message } from "@/components/ChatWindow"
 import { ChatInput, type AgentType } from "@/components/ChatInput"
-import { Navbar } from "@/components/Navbar"
+import { DashboardNavbar } from "@/components/DashboardNavbar"
 import { Sidebar } from "@/components/Sidebar"
 import { Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -105,9 +105,21 @@ export default function ChatPage() {
                     <Menu className="h-5 w-5" />
                 </Button>
 
-                {/* Desktop Navbar - hidden on mobile */}
-                <div className="hidden md:flex flex-1">
-                    <Navbar />
+                {/* Desktop Navbar - Centered Dashboard Navbar */}
+                <div className="hidden md:flex flex-1 items-center justify-center">
+                    <DashboardNavbar activeAgent={activeAgent} onAgentChange={handleAgentChange} />
+                </div>
+
+                {/* Desktop: Right-side Auth Buttons */}
+                <div className="hidden md:flex items-center gap-3 ml-auto">
+                    <Link to="/signin" className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
+                        Sign In
+                    </Link>
+                    <Link to="/signup">
+                        <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-sm">
+                            Sign Up
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Mobile: Login/Signup buttons only */}

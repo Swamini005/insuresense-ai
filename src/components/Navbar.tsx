@@ -64,11 +64,11 @@ export function Navbar() {
           {/* Right Section - CTA */}
           <div className="flex items-center gap-3">
             <Link to="/signin" className="hidden sm:block text-sm font-medium text-gray-800 hover:text-purple-600 px-4 py-2 transition-colors">
-              Login
+              Sign In
             </Link>
             <Link to="/signup">
               <Button className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 shadow-lg shadow-purple-200/60 transition-all">
-                Start Investing
+                Sign Up
               </Button>
             </Link>
 
@@ -108,11 +108,11 @@ export function Navbar() {
             onClick={() => setMobileOpen(false)}
             className="w-full text-left px-4 py-3 text-sm font-medium text-gray-800 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
           >
-            Login
+            Sign In
           </Link>
           <Link to="/signup" onClick={() => setMobileOpen(false)}>
             <Button className="w-full rounded-full bg-purple-600 hover:bg-purple-700 text-white font-medium mt-2">
-              Start Investing
+              Sign Up
             </Button>
           </Link>
         </div>

@@ -1,44 +1,68 @@
 import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 
-const slides = [
-  { 
-    id: "s1", 
+interface Slide {
+  id: string
+  title: string
+  subtitle: string
+  description: string
+  cta: string
+  img: string
+  gradient: string
+  bg: string
+  link?: string
+}
+
+const slides: Slide[] = [
+  {
+    id: "s5",
+    title: "Let's Start",
+    subtitle: "Begin Your Journey",
+    description: "Take the first step towards a secure future with our intelligent onboarding process.",
+    cta: "Get Started Now",
+    link: "/chat",
+    img: "/carousel/lets-invest.svg",
+    gradient: "from-orange-500 to-amber-600",
+    bg: "bg-gradient-to-br from-orange-50 to-amber-50"
+  },
+  {
+    id: "s1",
     title: "Let's Invest",
     subtitle: "Smart Investment Decisions",
     description: "AI-powered portfolio recommendations based on your risk profile and market conditions.",
-    cta: "Start Investing", 
+    cta: "Start Investing",
     img: "/carousel/lets-invest.svg",
     gradient: "from-emerald-500 to-teal-600",
     bg: "bg-gradient-to-br from-emerald-50 to-teal-50"
   },
-  { 
-    id: "s2", 
+  {
+    id: "s2",
     title: "Let's Go",
     subtitle: "Travel with Confidence",
     description: "Real-time travel risk analysis with instant coverage recommendations for your journey.",
-    cta: "Plan Your Trip", 
+    cta: "Plan Your Trip",
     img: "/carousel/lets-go.svg",
     gradient: "from-blue-500 to-indigo-600",
     bg: "bg-gradient-to-br from-blue-50 to-indigo-50"
   },
-  { 
-    id: "s3", 
+  {
+    id: "s3",
     title: "Let's Live",
     subtitle: "Health First, Always",
     description: "Comprehensive health monitoring with personalized insurance timing based on wellness data.",
-    cta: "Get Protected", 
+    cta: "Get Protected",
     img: "/carousel/lets-live.svg",
     gradient: "from-rose-500 to-pink-600",
     bg: "bg-gradient-to-br from-rose-50 to-pink-50"
   },
-  { 
-    id: "s4", 
+  {
+    id: "s4",
     title: "Let's Care",
     subtitle: "Family Protection Made Easy",
     description: "Unified family coverage with AI that adapts to your family's changing needs.",
-    cta: "Protect Family", 
+    cta: "Protect Family",
     img: "/carousel/lets-care.svg",
     gradient: "from-purple-500 to-violet-600",
     bg: "bg-gradient-to-br from-purple-50 to-violet-50"
@@ -122,12 +146,25 @@ export default function Carousel() {
                       {current.description}
                     </p>
                     <div className="flex flex-wrap gap-4">
-                      <Button
-                        className={`rounded-full bg-gradient-to-r ${current.gradient} hover:opacity-90 text-white font-bold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all border-none`}
-                        aria-label={`Get started with ${current.subtitle}`}
-                      >
-                        {current.cta}
-                      </Button>
+                      {current.link ? (
+                        <Button
+                          asChild
+                          onPointerDown={(e) => e.stopPropagation()}
+                          className={`rounded-full bg-gradient-to-r ${current.gradient} hover:opacity-90 text-white font-bold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all border-none`}
+                        >
+                          <Link to={current.link} aria-label={`Get started with ${current.subtitle}`}>
+                            {current.cta}
+                          </Link>
+                        </Button>
+                      ) : (
+                        <Button
+                          onPointerDown={(e) => e.stopPropagation()}
+                          className={`rounded-full bg-gradient-to-r ${current.gradient} hover:opacity-90 text-white font-bold px-8 py-6 text-lg shadow-lg hover:shadow-xl transition-all border-none`}
+                          aria-label={`Get started with ${current.subtitle}`}
+                        >
+                          {current.cta}
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         className="rounded-full border-2 border-gray-300 text-gray-700 font-semibold px-8 py-6 text-lg hover:bg-gray-100 transition-all"
