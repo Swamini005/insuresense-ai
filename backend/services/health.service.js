@@ -1,4 +1,5 @@
-
+import { HealthAgent } from '../agent/health.agent.js';
+import { SummarizerAgent } from '../agent/summarizer.agent.js';
 import * as healthLib from '../lib/health.lib.js';
 
 export const submitHealthDetails = async (details) => {
@@ -42,5 +43,15 @@ export const fetchNewsInsights = async () => {
 
 export const askHealthAgent = async (query, details) => {
     if (!query) throw new Error("Query is required");
-    return await healthLib.queryHealthAgent(query, details);
+
+    const agentResponse = await HealthAgent.run({ input: query });
+
+    const { report } = await SummarizerAgent.run({
+        agentType: "health",
+        agentResponse,
+        userQuery: query,
+        userDetails: details ?? undefined,
+    });
+
+    return { response: agentResponse.text, report };
 };

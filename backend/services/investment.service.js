@@ -1,4 +1,5 @@
-
+import { InvestmentAgent } from '../agent/investment.agent.js';
+import { SummarizerAgent } from '../agent/summarizer.agent.js';
 import * as investmentLib from '../lib/investment.lib.js';
 
 export const submitInvestmentDetails = async (details) => {
@@ -30,5 +31,15 @@ export const fetchNewsInsights = async () => {
 
 export const askInvestmentAgent = async (query) => {
     if (!query) throw new Error("Query is required");
-    return await investmentLib.queryInvestmentAgent(query);
+
+    const agentResponse = await InvestmentAgent.run({ input: query });
+
+    const { report } = await SummarizerAgent.run({
+        agentType: "investment",
+        agentResponse,
+        userQuery: query,
+        userDetails: details ?? undefined,
+    });
+
+    return { response: agentResponse.text, report };
 };

@@ -33,8 +33,8 @@ export const getNewsInsights = async (req, res) => {
 export const queryInvestmentAgent = async (req, res) => {
     try {
         const { query } = req.body;
-        const result = await investmentService.askInvestmentAgent(query);
-        res.status(200).json(result); // result already has text and sources
+        const result = await investmentService.askInvestmentAgent(query, req.body.details);
+        res.status(200).json({ response: result.response, report: result.report }); // result already has text and sources
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

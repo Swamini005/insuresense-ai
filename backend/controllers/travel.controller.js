@@ -14,8 +14,8 @@ export const postTravelDetails = async (req, res) => {
 export const updateTravelDetails = async (req, res) => {
     try {
         const details = req.body;
-        const result = await travelService.modifyTravelDetails(details);
-        res.status(200).json({ message: "Travel details updated", data: result });
+        const result = await travelService.modifyTravelDetails(details, req.body.details);
+        res.status(200).json({ message: "Travel details updated", data: result.response, report: result.report });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -35,7 +35,7 @@ export const queryTravelAgent = async (req, res) => {
         const { query } = req.body;
         // Optionally pass details from session or db if needed, here we assume it might be passed or derived
         const result = await travelService.askTravelAgent(query, req.body.details);
-        res.status(200).json({ response: result });
+        res.status(200).json({ response: result.response, report: result.report });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

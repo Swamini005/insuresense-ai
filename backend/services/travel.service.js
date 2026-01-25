@@ -1,4 +1,5 @@
-
+import { TravelAgent } from '../agent/travel.agent.js';
+import { SummarizerAgent } from '../agent/summarizer.agent.js';
 import * as travelLib from '../lib/travel.lib.js';
 
 export const submitTravelDetails = async (details) => {
@@ -31,5 +32,14 @@ export const fetchNewsInsights = async () => {
 
 export const askTravelAgent = async (query, details) => {
     if (!query) throw new Error("Query is required");
-    return await travelLib.queryTravelAgent(query, details);
+    const agentResponse = await TravelAgent.run({ input: query });
+
+    const { report } = await SummarizerAgent.run({
+        agentType: "travel",
+        agentResponse,
+        userQuery: query,
+        userDetails: details ?? undefined,
+    });
+
+     return { response: agentResponse.text, report };
 };
