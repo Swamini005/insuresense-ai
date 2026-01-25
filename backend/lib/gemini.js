@@ -11,6 +11,9 @@ if (!apiKey) {
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-export const getGeminiModel = (modelName = 'gemini-2.5-flash') => {
-    return genAI.getGenerativeModel({ model: modelName });
+export const getGeminiModel = (modelName = 'gemini-1.5-flash') => {
+    return genAI.getGenerativeModel({
+        model: modelName,
+        tools: [{ googleSearch: {} }]
+    });
 };

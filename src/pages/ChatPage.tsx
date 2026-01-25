@@ -62,27 +62,72 @@ export default function ChatPage() {
         }
     }, [location.state, navigate])
 
-    const handleSendMessage = (text: string) => {
-        // ... (unchanged)
+    const handleSendMessage = async (text: string) => {
+        if (!text.trim()) return
+
+        const newUserMsg: Message = {
+            id: Date.now().toString(),
+            text: text,
+            sender: "user",
+        }
+
+        setMessages((prev) => [...prev, newUserMsg])
+        setIsTyping(true)
+
+        try {
+            let endpoint = "http://localhost:4000/api/chat"
+            if (activeAgent === "Life") endpoint = "http://localhost:4000/api/life/lifeagent"
+            else if (activeAgent === "Health") endpoint = "http://localhost:4000/api/health/healthagent"
+            else if (activeAgent === "Travel") endpoint = "http://localhost:4000/api/travel/travelagent"
+            else if (activeAgent === "Investment") endpoint = "http://localhost:4000/api/investment/investmentagent"
+
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ query: text }),
+            })
+
+            if (!response.ok) {
+                throw new Error("Failed to get response")
+            }
+
+            const data = await response.json()
+
+            // Generic chat returns { response: string }
+            // Specific agents return { text: string, sources: ... } or sometimes { response: string } depending on verification (Health returned { response }, Investment { text })
+            // Let's handle both.
+            // Generic chat returns { response: string }
+            // Specific agents return { text: string, products: [], sources: ... }
+            const responseText = data.response || data.text || "Sorry, I couldn't process that."
+            const products = data.products || []
+
+            const agentResponse: Message = {
+                id: (Date.now() + 1).toString(),
+                text: responseText,
+                sender: "agent",
+                agentName: activeAgent || "Assistant",
+                products: products
+            }
+
+            setMessages((prev) => [...prev, agentResponse])
+        } catch (error) {
+            console.error("Error sending message:", error)
+            const errorMsg: Message = {
+                id: (Date.now() + 1).toString(),
+                text: "Sorry, something went wrong. Please try again.",
+                sender: "agent",
+                agentName: "System",
+            }
+            setMessages((prev) => [...prev, errorMsg])
+        } finally {
+            setIsTyping(false)
+        }
     }
 
-    const handleAgentChange = (newAgent: AgentType) => {
-        if (newAgent === "Travel") {
-            navigate("/travel-insurance")
-            return
-        }
-        if (newAgent === "Health") {
-            navigate("/health-insurance")
-            return
-        }
-        if (newAgent === "Life") {
-            navigate("/life-insurance")
-            return
-        }
-        if (newAgent === "Investment") {
-            navigate("/investment-insurance")
-            return
-        }
+    const handleChatAgentChange = (newAgent: AgentType) => {
+        // ChatInput allows switching agent within the chat
         setActiveAgent(newAgent)
         if (messages.length > 0) {
             setMessages(prev => [
@@ -95,6 +140,14 @@ export default function ChatPage() {
                 }
             ])
         }
+    }
+
+    const handleNavbarAgentChange = (agent: AgentType) => {
+        // Navbar navigates to specific pages as per user request
+        if (agent === "Travel") navigate("/travel-insurance")
+        else if (agent === "Health") navigate("/health-insurance")
+        else if (agent === "Life") navigate("/life-insurance")
+        else if (agent === "Investment") navigate("/investment-insurance")
     }
 
     const handleNewChat = () => {
@@ -119,9 +172,11 @@ export default function ChatPage() {
 
                     {/* Branding Logo */}
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform group-hover:scale-110">
-                            IS
-                        </div>
+                        <img
+                            src="/insurelogo.jpeg"
+                            alt="InsureSense Logo"
+                            className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                        />
                         <div className="hidden lg:flex text-sm font-semibold tracking-tight gap-0.5">
                             <span className="text-blue-900">Insure</span>
                             <span className="text-blue-800">Sense</span>
@@ -131,7 +186,7 @@ export default function ChatPage() {
 
                 {/* Desktop Navbar - Centered Dashboard Navbar (Agent Selection) */}
                 <div className="hidden md:flex flex-1 items-center justify-center">
-                    <DashboardNavbar activeAgent={activeAgent} onAgentChange={handleAgentChange} />
+                    <DashboardNavbar activeAgent={activeAgent} onAgentChange={handleNavbarAgentChange} />
                 </div>
 
                 {/* Desktop: Right-side Auth Buttons */}
@@ -182,7 +237,7 @@ export default function ChatPage() {
                             onSendMessage={handleSendMessage}
                             disabled={isTyping}
                             activeAgent={activeAgent}
-                            onAgentChange={handleAgentChange}
+                            onAgentChange={handleChatAgentChange}
                         />
                         <p className="text-center text-xs text-gray-400 mt-2">
                             AI agents can make mistakes. Please verify important insurance details.

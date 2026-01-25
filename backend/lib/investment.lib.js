@@ -30,5 +30,5 @@ export const getInvestmentNewsInsights = async () => {
 };
 
 export const queryInvestmentAgent = async (query) => {
-    return await InvestmentAgent.run({ input: query });
+    return await InvestmentAgent.run({ input: query, context: investmentDetailsStore });
 };

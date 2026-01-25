@@ -36,11 +36,31 @@ export const queryTravelAgent = async (query, context) => {
         const model = getGeminiModel();
         const prompt = `You are a helpful Travel Insurance Agent. 
         Context: ${JSON.stringify(context || travelDetailsStore)}
-        User Query: ${query}`;
+        User Query: ${query}
+        
+        Instructions:
+        1. Answer based on travel details (destination, dates, travelers).
+        2. USE GOOGLE SEARCH to find REAL & CURRENT travel insurance plans.
+        3. Recommend a relevant real plan.
+        4. Return ONLY a valid JSON object:
+        {
+            "text": "Your answer...",
+            "products": [
+                { "id": "t1", "name": "Global Trekker", "description": "Medical & baggage cover...", "price": "₹2,500" }
+            ]
+        }`;
 
         const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        const textResponse = result.response.text();
+
+        try {
+            const jsonStr = textResponse.replace(/^```json\n|\n```$/g, "").trim();
+            const parsed = JSON.parse(jsonStr);
+            return parsed;
+        } catch (e) {
+            console.error("Failed to parse JSON from travel agent");
+            return { text: textResponse, products: [] };
+        }
     } catch (error) {
         console.error("Error querying travel agent:", error);
         throw error;

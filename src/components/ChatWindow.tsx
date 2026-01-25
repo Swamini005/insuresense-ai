@@ -1,11 +1,14 @@
 import { useEffect, useRef } from "react"
 import { MessageBubble } from "./MessageBubble"
 
+import { ProductCard, type Product } from "./ProductCard"
+
 export interface Message {
     id: string
     text: string
     sender: "user" | "agent"
     agentName?: string
+    products?: Product[]
 }
 
 interface ChatWindowProps {
@@ -42,21 +45,22 @@ export function ChatWindow({ messages, isTyping, activeAgent, greeting }: ChatWi
                     </div>
                 )}
 
-                {/* Messages Spacer to push content to bottom or keep top-aligned? 
-                    Claude keeps messages top-aligned usually, or bottom-aligned. 
-                    Let's stick to justify-end if we want bottom-up chat, or flex-1 for standard.
-                    The user said "like claude", Claude centers the greeting until messages start.
-                */}
                 <div className={messages.length > 0 ? "flex flex-col space-y-4 pb-4" : "hidden"}>
-                    {/* Greeting (Optional to show at top of chat history? usually no, it disappears) */}
-
                     {messages.map((msg) => (
-                        <MessageBubble
-                            key={msg.id}
-                            text={msg.text}
-                            sender={msg.sender}
-                            agentName={msg.agentName}
-                        />
+                        <div key={msg.id} className="flex flex-col">
+                            <MessageBubble
+                                text={msg.text}
+                                sender={msg.sender}
+                                agentName={msg.agentName}
+                            />
+                            {msg.products && msg.products.length > 0 && (
+                                <div className="ml-4 mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-2 max-w-2xl">
+                                    {msg.products.map((product) => (
+                                        <ProductCard key={product.id} product={product} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
 
                     {isTyping && (

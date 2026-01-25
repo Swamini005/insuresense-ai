@@ -34,7 +34,7 @@ export const queryLifeAgent = async (req, res) => {
     try {
         const { query } = req.body;
         const result = await lifeService.askLifeAgent(query, req.body.details);
-        res.status(200).json({ response: result });
+        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

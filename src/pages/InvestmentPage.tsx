@@ -86,11 +86,13 @@ export default function InvestmentPage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
-        console.log("Investment Form Submitted:", formData)
-        setTimeout(() => {
-            setIsSubmitting(false)
-            alert("Investment profile analyzed. Calculating your optimal portfolio mix...")
-        }, 1500)
+        // Navigate to recommendations page with data
+        navigate("/recommendations", {
+            state: {
+                formData,
+                agent: "Investment"
+            }
+        })
     }
 
     const handleAgentChange = (agent: AgentType) => {
@@ -153,7 +155,7 @@ export default function InvestmentPage() {
             </div>
 
             {/* Header / Hero Section */}
-            <div className="bg-gradient-to-r from-indigo-700 to-teal-600 text-white pt-12 pb-24 px-6">
+            <div className="bg-gradient-to-r from-purple-700 to-violet-600 text-white pt-12 pb-24 px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -163,7 +165,7 @@ export default function InvestmentPage() {
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
                             Grow Your Wealth Wisely.
                         </h1>
-                        <p className="text-lg md:text-xl text-indigo-100 max-w-2xl mx-auto">
+                        <p className="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto">
                             Customized investment strategies aligned with your life goals and risk appetite.
                         </p>
                     </motion.div>
@@ -183,7 +185,7 @@ export default function InvestmentPage() {
                         {/* Section 1: Goals & Timeline */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Rocket className="text-indigo-600 h-5 w-5" />
+                                <Rocket className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">1. Financial Vision</h2>
                             </div>
 
@@ -214,7 +216,7 @@ export default function InvestmentPage() {
                         {/* Section 2: Investment Amount */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Wallet className="text-indigo-600 h-5 w-5" />
+                                <Wallet className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">2. Capital Allocation</h2>
                             </div>
 
@@ -254,7 +256,7 @@ export default function InvestmentPage() {
                         {/* Section 3: Profile & Financials */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Landmark className="text-indigo-600 h-5 w-5" />
+                                <Landmark className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">3. Current Snapshot</h2>
                             </div>
 
@@ -304,7 +306,7 @@ export default function InvestmentPage() {
                         {/* Section 4: Existing Portfolio */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <ShieldCheck className="text-indigo-600 h-5 w-5" />
+                                <ShieldCheck className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">4. Existing Safety Nets</h2>
                             </div>
 
@@ -326,7 +328,7 @@ export default function InvestmentPage() {
                                             <input
                                                 type="checkbox"
                                                 id={`prod-${prod}`}
-                                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                                className="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                                             />
                                             <label htmlFor={`prod-${prod}`} className="text-sm text-slate-700 cursor-pointer">
                                                 {prod}
@@ -340,7 +342,7 @@ export default function InvestmentPage() {
                         {/* Section 5: Risk & Preferences */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <TrendingUp className="text-indigo-600 h-5 w-5" />
+                                <TrendingUp className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">5. Risk & Flexibility</h2>
                             </div>
 
@@ -380,7 +382,7 @@ export default function InvestmentPage() {
                         {/* Section 6: Health & Knowledge */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Leaf className="text-indigo-600 h-5 w-5" />
+                                <Leaf className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">6. Final Checks</h2>
                             </div>
 
@@ -413,7 +415,7 @@ export default function InvestmentPage() {
                             </Button>
                             <Button
                                 type="submit"
-                                className="bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white min-w-[240px] rounded-full shadow-lg shadow-indigo-100 border-none h-12 text-lg font-bold"
+                                className="bg-gradient-to-r from-purple-600 to-violet-600 hover:from-purple-700 hover:to-violet-700 text-white min-w-[240px] rounded-full shadow-lg shadow-purple-100 border-none h-12 text-lg font-bold"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? "Generating Strategy..." : "Optimize My Investments"}

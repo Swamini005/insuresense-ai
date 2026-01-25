@@ -34,11 +34,31 @@ export const queryLifeAgent = async (query, context) => {
         const model = getGeminiModel();
         const prompt = `You are a helpful Life Insurance Agent. 
         Context: ${JSON.stringify(context || lifeDetailsStore)}
-        User Query: ${query}`;
+        User Query: ${query}
+        
+        Instructions:
+        1. Answer based on user context (age, income, family, etc.).
+        2. USE GOOGLE SEARCH to find REAL & CURRENT life insurance (Term/Whole Life) plans.
+        3. Recommend a specific real policy.
+        4. Return ONLY a valid JSON object:
+        {
+            "text": "Your answer...",
+            "products": [
+                { "id": "l1", "name": "Secure Life Plus", "description": "High cover term plan...", "price": "₹12,000/yr" }
+            ]
+        }`;
 
         const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        const textResponse = result.response.text();
+
+        try {
+            const jsonStr = textResponse.replace(/^```json\n|\n```$/g, "").trim();
+            const parsed = JSON.parse(jsonStr);
+            return parsed;
+        } catch (e) {
+            console.error("Failed to parse JSON from life agent");
+            return { text: textResponse, products: [] };
+        }
     } catch (error) {
         console.error("Error querying life agent:", error);
         throw error;

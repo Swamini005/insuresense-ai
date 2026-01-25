@@ -88,11 +88,13 @@ export default function LifeInsurancePage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
-        console.log("Life Form Submitted:", formData)
-        setTimeout(() => {
-            setIsSubmitting(false)
-            alert("Life Insurance Profile Created. Calculating Human Life Value...")
-        }, 1500)
+        // Navigate to recommendations page with data
+        navigate("/recommendations", {
+            state: {
+                formData,
+                agent: "Life"
+            }
+        })
     }
 
     const handleAgentChange = (agent: AgentType) => {
@@ -151,7 +153,7 @@ export default function LifeInsurancePage() {
             </div>
 
             {/* Hero */}
-            <div className="bg-gradient-to-r from-rose-500 to-pink-600 text-white pt-12 pb-24 px-6">
+            <div className="bg-gradient-to-r from-purple-700 to-violet-600 text-white pt-12 pb-24 px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -161,7 +163,7 @@ export default function LifeInsurancePage() {
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
                             Secure Their Future
                         </h1>
-                        <p className="text-lg md:text-xl text-rose-100 max-w-2xl mx-auto">
+                        <p className="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto">
                             Life insurance that adapts to your financial goals and family needs.
                         </p>
                     </motion.div>
@@ -181,7 +183,7 @@ export default function LifeInsurancePage() {
                         {/* 1. Identity & Goals */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Heart className="text-rose-600 h-5 w-5" />
+                                <Heart className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">You & Your Goals</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -210,7 +212,7 @@ export default function LifeInsurancePage() {
                         {/* 2. Financials */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Banknote className="text-rose-600 h-5 w-5" />
+                                <Banknote className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Financial Snapshot</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -247,7 +249,7 @@ export default function LifeInsurancePage() {
                         {/* 3. Risk & Health */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <ShieldCheck className="text-rose-600 h-5 w-5" />
+                                <ShieldCheck className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Risk Profile</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -275,8 +277,8 @@ export default function LifeInsurancePage() {
                             <div>
                                 <Label className="mb-2 block">Tobacco / Nicotine Use</Label>
                                 <div className="flex gap-4">
-                                    <label className="flex items-center gap-2"><input type="radio" checked={formData.tobacco === "yes"} onChange={() => handleChange("tobacco", "yes")} className="text-rose-600" /> Yes</label>
-                                    <label className="flex items-center gap-2"><input type="radio" checked={formData.tobacco === "no"} onChange={() => handleChange("tobacco", "no")} className="text-rose-600" /> No</label>
+                                    <label className="flex items-center gap-2"><input type="radio" checked={formData.tobacco === "yes"} onChange={() => handleChange("tobacco", "yes")} className="text-purple-600" /> Yes</label>
+                                    <label className="flex items-center gap-2"><input type="radio" checked={formData.tobacco === "no"} onChange={() => handleChange("tobacco", "no")} className="text-purple-600" /> No</label>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +286,7 @@ export default function LifeInsurancePage() {
                         {/* 4. Payout Preference */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Umbrella className="text-rose-600 h-5 w-5" />
+                                <Umbrella className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Claim Payout</h2>
                             </div>
                             <div>
@@ -307,7 +309,7 @@ export default function LifeInsurancePage() {
                             </Button>
                             <Button
                                 type="submit"
-                                className="bg-rose-600 hover:bg-rose-700 text-white min-w-[200px]"
+                                className="bg-purple-600 hover:bg-purple-700 text-white min-w-[200px]"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? "Calculating..." : "Analyze Needs"}

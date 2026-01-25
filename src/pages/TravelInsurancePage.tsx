@@ -71,12 +71,13 @@ export default function TravelInsurancePage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
-        console.log("Form Submitted:", formData)
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false)
-            alert("Thanks! We've received your details. Analyzing options...")
-        }, 1500)
+        // Navigate to recommendations page with data
+        navigate("/recommendations", {
+            state: {
+                formData,
+                agent: "Travel"
+            }
+        })
     }
 
     const handleAgentChange = (agent: AgentType) => {
@@ -140,7 +141,7 @@ export default function TravelInsurancePage() {
             </div>
 
             {/* Header / Hero Section */}
-            <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white pt-12 pb-24 px-6">
+            <div className="bg-gradient-to-r from-purple-700 to-violet-600 text-white pt-12 pb-24 px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

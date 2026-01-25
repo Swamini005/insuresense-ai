@@ -87,11 +87,13 @@ export default function HealthInsurancePage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
-        console.log("Health Form Submitted:", formData)
-        setTimeout(() => {
-            setIsSubmitting(false)
-            alert("Health details received. Generating personalized plan...")
-        }, 1500)
+        // Navigate to recommendations page with data
+        navigate("/recommendations", {
+            state: {
+                formData,
+                agent: "Health"
+            }
+        })
     }
 
     const handleAgentChange = (agent: AgentType) => {
@@ -150,7 +152,7 @@ export default function HealthInsurancePage() {
             </div>
 
             {/* Hero */}
-            <div className="bg-gradient-to-r from-teal-500 to-emerald-600 text-white pt-12 pb-24 px-6">
+            <div className="bg-gradient-to-r from-purple-600 to-violet-600 text-white pt-12 pb-24 px-6">
                 <div className="max-w-4xl mx-auto text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -160,7 +162,7 @@ export default function HealthInsurancePage() {
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">
                             Complete Health Protection
                         </h1>
-                        <p className="text-lg md:text-xl text-teal-100 max-w-2xl mx-auto">
+                        <p className="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto">
                             Comprehensive coverage for you and your family.
                         </p>
                     </motion.div>
@@ -180,7 +182,7 @@ export default function HealthInsurancePage() {
                         {/* 1. Intent & Scope */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Shield className="text-teal-600 h-5 w-5" />
+                                <Shield className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Coverage Needs</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -211,7 +213,7 @@ export default function HealthInsurancePage() {
                         {/* 2. Location & Background */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Users className="text-teal-600 h-5 w-5" />
+                                <Users className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Personal Details</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -245,7 +247,7 @@ export default function HealthInsurancePage() {
                                                 value={opt}
                                                 checked={formData.hasPreExisting === opt}
                                                 onChange={(e) => handleChange("hasPreExisting", e.target.value)}
-                                                className="text-teal-600 focus:ring-teal-500"
+                                                className="text-purple-600 focus:ring-purple-500"
                                             />
                                             <span className="text-sm text-slate-700">{opt}</span>
                                         </label>
@@ -257,7 +259,7 @@ export default function HealthInsurancePage() {
                         {/* 3. Preferences */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-2 mb-4 border-b border-slate-100 pb-2">
-                                <Activity className="text-teal-600 h-5 w-5" />
+                                <Activity className="text-purple-600 h-5 w-5" />
                                 <h2 className="text-xl font-semibold text-slate-800">Plan Preferences</h2>
                             </div>
                             <div className="grid md:grid-cols-2 gap-6">
@@ -301,7 +303,7 @@ export default function HealthInsurancePage() {
                             </Button>
                             <Button
                                 type="submit"
-                                className="bg-teal-600 hover:bg-teal-700 text-white min-w-[200px]"
+                                className="bg-purple-600 hover:bg-purple-700 text-white min-w-[200px]"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? "Analyzing..." : "Find Health Plans"}

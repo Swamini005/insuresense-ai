@@ -38,9 +38,11 @@ export function Navbar() {
         >
           {/* Logo (clickable) */}
           <a href="/" className="flex items-center gap-3 group">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center text-white font-bold text-lg">
-              IS
-            </div>
+            <img
+              src="/insurelogo.jpeg"
+              alt="InsureSense Logo"
+              className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            />
             <div className="text-lg font-semibold tracking-tight flex gap-1">
               <span className="text-blue-900 group-hover:text-blue-800">Insure</span>
               <span className="text-blue-800 group-hover:text-blue-700">Sense</span>
