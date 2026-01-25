@@ -1,5 +1,4 @@
-
-import { runInvestmentAgent } from '../agent/investment.agent.js';
+import { InvestmentAgent } from '../agent/investment.agent.js';
 import { getGeminiModel } from './gemini.js';
 
 // Mock store
@@ -31,5 +30,5 @@ export const getInvestmentNewsInsights = async () => {
 };
 
 export const queryInvestmentAgent = async (query) => {
-    return await runInvestmentAgent(query, investmentDetailsStore);
+    return await InvestmentAgent.run({ input: query });
 };
