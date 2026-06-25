@@ -7,7 +7,7 @@ interface DashboardNavbarProps {
     onAgentChange: (agent: AgentType) => void
 }
 
-const agents: AgentType[] = ["Life", "Health", "Travel", "Investment"]
+const agents: AgentType[] = ["Life", "Health", "Travel", "Investment", "Crypto"]
 
 export function DashboardNavbar({ activeAgent, onAgentChange }: DashboardNavbarProps) {
     return (

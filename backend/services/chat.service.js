@@ -5,7 +5,7 @@ export const processChatQuery = async (query) => {
     if (!query) {
         throw new Error("Query is required");
     }
-    return await chatLib.chatWithGemini(query);
+    return await chatLib.chatWithGroq(query);
 };
 
 export const getAgentStatus = async () => {

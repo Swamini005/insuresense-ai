@@ -1,10 +1,10 @@
 import { useState, type KeyboardEvent, useRef, useEffect } from "react"
-import { Send, Plus, X, Heart, Activity, Plane, TrendingUp } from "lucide-react"
+import { Send, Plus, X, Heart, Activity, Plane, TrendingUp, Bitcoin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
 
-export type AgentType = "Life" | "Health" | "Travel" | "Investment"
+export type AgentType = "Life" | "Health" | "Travel" | "Investment" | "Crypto"
 
 interface ChatInputProps {
     onSendMessage: (message: string) => void
@@ -18,6 +18,7 @@ const agents = [
     { id: "Health", label: "Health", icon: Activity, color: "text-emerald-500", bg: "bg-emerald-50" },
     { id: "Travel", label: "Travel", icon: Plane, color: "text-sky-500", bg: "bg-sky-50" },
     { id: "Investment", label: "Investment", icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50" },
+    { id: "Crypto", label: "Crypto", icon: Bitcoin, color: "text-amber-500", bg: "bg-amber-50" },
 ] as const
 
 export function ChatInput({ onSendMessage, disabled, activeAgent, onAgentChange }: ChatInputProps) {

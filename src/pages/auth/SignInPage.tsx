@@ -1,18 +1,24 @@
-
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Navbar } from "@/components/Navbar"
+import { useAuth } from "@/context/AuthContext"
 
 export default function SignInPage() {
+    const navigate = useNavigate()
+    const location = useLocation()
+    const { login } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
     const [formData, setFormData] = useState({
-        username: "",
+        email: "",
         password: ""
     })
+
+    const redirectTo = (location.state as { from?: string } | null)?.from || "/chat"
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target
@@ -21,12 +27,16 @@ export default function SignInPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setError("")
         setIsLoading(true)
-        // Mock API call
-        setTimeout(() => {
+        try {
+            await login(formData.email, formData.password)
+            navigate(redirectTo, { replace: true })
+        } catch (err: any) {
+            setError(err.message || "Sign in failed")
+        } finally {
             setIsLoading(false)
-            alert("Sign in successful! (Mock)")
-        }, 1500)
+        }
     }
 
     return (
@@ -45,15 +55,22 @@ export default function SignInPage() {
                     <p className="text-muted-foreground">Sign in to your account</p>
                 </div>
 
+                {error && (
+                    <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+                        {error}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <Label htmlFor="username">Username or Email</Label>
+                        <Label htmlFor="email">Email</Label>
                         <Input
-                            id="username"
-                            value={formData.username}
+                            id="email"
+                            type="email"
+                            value={formData.email}
                             onChange={handleInputChange}
                             required
-                            placeholder="Enter your username"
+                            placeholder="you@example.com"
                         />
                     </div>
                     <div className="space-y-2">

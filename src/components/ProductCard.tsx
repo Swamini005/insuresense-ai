@@ -15,30 +15,36 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow max-w-sm w-full mb-3"
+            whileHover={{ y: -8, scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="group relative bg-white rounded-3xl border border-purple-100/50 shadow-xl shadow-purple-900/5 overflow-hidden hover:shadow-2xl hover:shadow-purple-900/10 transition-all duration-300 w-full"
         >
-            <div className="p-4">
-                <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                        <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
-                            <Shield className="h-5 w-5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-white to-violet-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            
+            <div className="relative p-6 sm:p-8">
+                <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-gradient-to-br from-purple-100 to-violet-200 rounded-2xl text-purple-700 shadow-inner">
+                            <Shield className="h-6 w-6" />
                         </div>
-                        <h3 className="font-semibold text-gray-900">{product.name}</h3>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight">{product.name}</h3>
                     </div>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                <p className="text-sm text-slate-600 mb-8 leading-relaxed line-clamp-3">
                     {product.description}
                 </p>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-end justify-between pt-6 border-t border-slate-100">
                     <div>
-                        <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">Premium / Price</p>
-                        <p className="text-lg font-bold text-gray-900">{product.price}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Premium</p>
+                        <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-violet-600">
+                            {product.price}
+                        </p>
                     </div>
-                    <button className="flex items-center gap-1.5 text-sm font-semibold text-purple-600 hover:text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition-colors">
+                    <button className="flex items-center gap-2 text-sm font-bold text-white bg-slate-900 hover:bg-purple-600 px-5 py-3 rounded-xl transition-all shadow-lg hover:shadow-purple-500/30">
                         View Details
                         <ArrowRight className="h-4 w-4" />
                     </button>

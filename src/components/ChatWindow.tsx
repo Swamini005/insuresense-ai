@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react"
+import { FileText } from "lucide-react"
 import { MessageBubble } from "./MessageBubble"
 
 import { ProductCard, type Product } from "./ProductCard"
@@ -9,6 +10,7 @@ export interface Message {
     sender: "user" | "agent"
     agentName?: string
     products?: Product[]
+    report?: string
 }
 
 interface ChatWindowProps {
@@ -58,6 +60,17 @@ export function ChatWindow({ messages, isTyping, activeAgent, greeting }: ChatWi
                                     {msg.products.map((product) => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
+                                </div>
+                            )}
+                            {msg.report && (
+                                <div className="ml-4 mt-3 max-w-2xl bg-purple-50/60 border border-purple-100 rounded-2xl p-5 shadow-sm">
+                                    <div className="flex items-center gap-2 mb-3 text-purple-700">
+                                        <FileText className="h-4 w-4" />
+                                        <span className="text-xs font-bold uppercase tracking-wider">Breakthrough Report</span>
+                                    </div>
+                                    <div className="text-sm leading-relaxed text-slate-700 whitespace-pre-wrap">
+                                        {msg.report}
+                                    </div>
                                 </div>
                             )}
                         </div>

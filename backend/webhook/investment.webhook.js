@@ -2,9 +2,13 @@ import axios from 'axios';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { handleWebhookData, InvestmentMemory } from '../memory/investment.memory.js';
+import { upsertInvestmentItems } from '../memory/investment.memory.js';
 
-export const migrateInvestmentJsonToMongo = async (req, res) => {
+// ES module __dirname replacement
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const migrateInvestmentJsonToDb = async (req, res) => {
     try {
         const filePath = path.join(__dirname, 'investment.json');
 
@@ -27,57 +31,17 @@ export const migrateInvestmentJsonToMongo = async (req, res) => {
             });
         }
 
-        console.log(`Found ${investmentData.length} records. Migrating...`);
+        console.log(`Found ${investmentData.length} records. Upserting into Postgres...`);
 
-        let inserted = 0;
-        let skipped = 0;
-
-        for (const item of investmentData) {
-            if (!item.id) {
-                skipped++;
-                continue;
-            }
-
-            const exists = await InvestmentMemory.findOne({ originalId: item.id });
-            if (exists) {
-                skipped++;
-                continue;
-            }
-
-            // Map snake_case JSON to camelCase Schema
-            await InvestmentMemory.create({
-                originalId: item.id,
-                assetId: item.asset_id,
-                token: item.token,
-                symbol: item.symbol,
-                logo: item.logo,
-                logoMark: item.logo_mark,
-                mobileLogo: item.mobile_logo,
-                altText: item.alt_text,
-                title: item.title,
-                slug: item.slug,
-                publisher: item.publisher,
-                publisherUrl: item.publisher_url,
-                readTime: item.read_time,
-                publishedAt: item.published_at,
-                content: item.content,
-                contentSnippet: item.content_snippet,
-                takeaways: item.takeaways,
-                takeawaysSnippet: item.takeaways_snippet,
-                trending: item.trending,
-                bookmark: item.bookmark
-            });
-            inserted++;
-        }
-
-        console.log('Migration complete.');
+        const { results } = await upsertInvestmentItems(investmentData);
+        const inserted = results.filter((r) => r.success).length;
 
         return res.status(200).json({
             success: true,
             total: investmentData.length,
             inserted,
-            skipped,
-            message: 'investment.json migrated to MongoDB successfully'
+            skipped: results.length - inserted,
+            message: 'investment.json migrated to Postgres successfully'
         });
 
     } catch (error) {
@@ -88,10 +52,6 @@ export const migrateInvestmentJsonToMongo = async (req, res) => {
         });
     }
 };
-
-// Needed for ES modules (__dirname replacement)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export const fetchAndIngestInvestmentNews = async (req, res) => {
     const url = "https://api-v2.precize.in/v1/pe/open/news/ALL";
@@ -137,22 +97,20 @@ export const fetchAndIngestInvestmentNews = async (req, res) => {
 
         // 📁 Write raw fetched data to investment.json
         const filePath = path.join(__dirname, 'investment.json');
-        fs.writeFileSync(
-            filePath,
-            JSON.stringify(newsItems, null, 2),
-            'utf-8'
-        );
+        fs.writeFileSync(filePath, JSON.stringify(newsItems, null, 2), 'utf-8');
         console.log(`Saved ${newsItems.length} records to investment.json`);
 
-        // 💾 Store to MongoDB
-        console.log("Storing data to MongoDB...");
-        const dbResult = await handleWebhookData(newsItems);
-        console.log(`\nSuccessfully stored ${dbResult.results.filter(r => r.success).length} items in MongoDB.`);
+        // 💾 Store to Postgres
+        console.log("Storing data to Postgres...");
+        const dbResult = await upsertInvestmentItems(newsItems);
+        const stored = dbResult.results.filter((r) => r.success).length;
+        console.log(`\nSuccessfully stored ${stored} items in Postgres.`);
 
         if (res) {
             return res.status(200).json({
                 success: true,
                 totalFetched: newsItems.length,
+                stored,
                 jsonFile: 'investment.json',
                 message: "Investment news fetched and saved successfully"
             });

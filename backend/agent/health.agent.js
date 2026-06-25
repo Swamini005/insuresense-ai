@@ -1,17 +1,35 @@
-import { getGeminiModel } from "../lib/gemini.js";
+import { getGroqModel } from "../lib/groq.js";
 import { loadHealthMemoryForLLM } from "../memory/health.memory.js";
 
 export const HealthAgent = {
   name: "health-agent",
   description: "Health insurance expert agent",
 
-  run: async ({ input, context }) => {
+  chat: async ({ input, context }) => {
     if (!input) throw new Error("Prompt is required");
+    const userProfileText = context ? JSON.stringify(context, null, 2) : "No user profile available.";
 
-    // Load memories or just use context
-    // Ideally we fetch recent news from HealthMemory if available
-    const contextText = "Recent health insurance market updates and user context.";
+    const finalPrompt = `
+You are an expert, helpful health insurance agent.
+Your goal is to answer the user's query conversationally and providing guidance.
 
+User Profile Context:
+${userProfileText}
+
+User Query:
+${input}
+
+Instructions:
+1. Provide a direct, friendly, and helpful text response to their query.
+2. DO NOT output JSON. Use standard markdown paragraphs and lists.
+    `.trim();
+
+    const result = await getGroqModel({ responseFormat: 'text' }).generateContent(finalPrompt);
+    return { text: result.response.text(), products: [], sources: [] };
+  },
+
+  recommend: async ({ input, context }) => {
+    if (!input) throw new Error("Prompt is required");
     const userProfileText = context ? JSON.stringify(context, null, 2) : "No user profile available.";
 
     const finalPrompt = `
@@ -27,7 +45,7 @@ ${input}
 Instructions:
 1. Analyze the user's profile (age, location, coverage needs, etc.).
 2. USE GOOGLE SEARCH to find REAL, LIVE health insurance plans in India (e.g., Star Health, HDFC Ergo, Niva Bupa) that fit their profile.
-3. Return ONLY a valid JSON object:
+3. Return ONLY a valid JSON object matching exactly this structure:
 {
   "text": "Your personalized advice...",
   "products": [
@@ -41,7 +59,7 @@ Instructions:
 }
     `.trim();
 
-    const result = await getGeminiModel().generateContent(finalPrompt);
+    const result = await getGroqModel({ responseFormat: 'json_object' }).generateContent(finalPrompt);
     const textResponse = result.response.text();
 
     try {

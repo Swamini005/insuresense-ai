@@ -1,34 +1,52 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// ── Load backend/.env ──────────────────────────────────────
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, 'backend', '.env') });
+
+import knex from './backend/db/knex.js';
+import authRoutes from './backend/routes/auth.routes.js';
 import mastraRoutes from './backend/routes/mastra.routes.js';
 import healthRoutes from './backend/routes/health.routes.js';
 import travelRoutes from './backend/routes/travel.routes.js';
 import investmentRoutes from './backend/routes/investment.routes.js';
 import lifeRoutes from './backend/routes/life.routes.js';
+import cryptoRoutes from './backend/routes/crypto.routes.js';
 import chatRoutes from './backend/routes/chat.routes.js';
 
-dotenv.config();
-
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(cors());
+// ── CORS ───────────────────────────────────────────────────
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+
+app.use(cors({
+    origin: CORS_ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+}));
+
 app.use(express.json());
 
-// Database Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/insuresense')
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch(err => console.error('❌ MongoDB connection error:', err));
+// Database Connection (Postgres via Knex)
+knex.raw('select 1')
+    .then(() => console.log('✅ Postgres connected'))
+    .catch(err => console.error('❌ Postgres connection error:', err.message));
 
 // Routes
+app.use('/api/auth', authRoutes);
 // app.use('/api/mastra', mastraRoutes); // Commenting out until mastra is fully setup if needed, or keep it.
 app.use('/api/health', healthRoutes);
 app.use('/api/travel', travelRoutes);
 app.use('/api/investment', investmentRoutes);
 app.use('/api/life', lifeRoutes);
+app.use('/api/crypto', cryptoRoutes);
 app.use('/api/chat', chatRoutes);
 
 // Global Error Handler
@@ -43,4 +61,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌐 CORS origin: ${CORS_ORIGIN}`);
 });

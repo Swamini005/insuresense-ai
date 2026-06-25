@@ -1,10 +1,8 @@
-
 import * as lifeService from '../services/life.service.js';
 
 export const postLifeDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await lifeService.submitLifeDetails(details);
+        const result = await lifeService.submitLifeDetails(req.user.id, req.body);
         res.status(200).json({ message: "Life details saved", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -13,8 +11,7 @@ export const postLifeDetails = async (req, res) => {
 
 export const updateLifeDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await lifeService.modifyLifeDetails(details);
+        const result = await lifeService.modifyLifeDetails(req.user.id, req.body);
         res.status(200).json({ message: "Life details updated", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -30,10 +27,20 @@ export const getNewsInsights = async (req, res) => {
     }
 };
 
-export const queryLifeAgent = async (req, res) => {
+export const queryLifeChat = async (req, res) => {
     try {
-        const { query } = req.body;
-        const result = await lifeService.askLifeAgent(query, req.body.details);
+        const { query, details } = req.body;
+        const result = await lifeService.askLifeChat(req.user.id, query, details);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const queryLifeRecommendations = async (req, res) => {
+    try {
+        const { query, details } = req.body;
+        const result = await lifeService.askLifeRecommendations(req.user.id, query, details);
         res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });

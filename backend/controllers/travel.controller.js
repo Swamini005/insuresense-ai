@@ -1,10 +1,8 @@
-
 import * as travelService from '../services/travel.service.js';
 
 export const postTravelDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await travelService.submitTravelDetails(details);
+        const result = await travelService.submitTravelDetails(req.user.id, req.body);
         res.status(200).json({ message: "Travel details saved", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -13,9 +11,8 @@ export const postTravelDetails = async (req, res) => {
 
 export const updateTravelDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await travelService.modifyTravelDetails(details, req.body.details);
-        res.status(200).json({ message: "Travel details updated", data: result.response, report: result.report });
+        const result = await travelService.modifyTravelDetails(req.user.id, req.body);
+        res.status(200).json({ message: "Travel details updated", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -30,12 +27,21 @@ export const getNewsInsights = async (req, res) => {
     }
 };
 
-export const queryTravelAgent = async (req, res) => {
+export const queryTravelChat = async (req, res) => {
     try {
-        const { query } = req.body;
-        // Optionally pass details from session or db if needed, here we assume it might be passed or derived
-        const result = await travelService.askTravelAgent(query, req.body.details);
-        res.status(200).json({ response: result.response, report: result.report });
+        const { query, details } = req.body;
+        const result = await travelService.askTravelChat(req.user.id, query, details);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const queryTravelRecommendations = async (req, res) => {
+    try {
+        const { query, details } = req.body;
+        const result = await travelService.askTravelRecommendations(req.user.id, query, details);
+        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

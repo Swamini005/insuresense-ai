@@ -1,20 +1,20 @@
-import { getGeminiModel } from '../lib/gemini.js';
-
 /**
- * Generates an embedding for the given text using the Gemini model.
+ * Generates an embedding for the given text.
+ *
+ * NOTE: Groq does not serve embedding models, so this is currently unsupported.
+ * Nothing in the live request path calls it today (the investment agent reads
+ * recent news from Postgres by recency, not vector similarity). If/when vector
+ * search is needed, wire a dedicated embeddings provider (e.g. a local model,
+ * Voyage, or OpenAI) here.
+ *
  * @param {string} text - The text to embed.
  * @returns {Promise<number[]>} - The embedding vector.
  */
-export const generateEmbedding = async (text) => {
-    try {
-        const model = getGeminiModel('text-embedding-004'); // Using a specific embedding model if available, or 'embedding-001'
-        const result = await model.embedContent(text);
-        const embedding = result.embedding;
-        return embedding.values;
-    } catch (error) {
-        console.error('Error generating embedding:', error);
-        throw error;
-    }
+export const generateEmbedding = async (_text) => {
+    throw new Error(
+        'generateEmbedding is not supported: Groq has no embedding models. ' +
+        'Wire a dedicated embeddings provider before using vector search.'
+    );
 };
 
 /**
@@ -30,11 +30,11 @@ export const cleanText = (text) => {
 };
 
 /**
- * Stores vectors locally - Placeholder compatibility function requested by user code,
- * but real implementation uses MongoDB in investment.webhook.js
+ * Stores vectors locally - Placeholder compatibility function.
+ * Real storage is handled directly in Postgres by investment.webhook.js.
  */
 export const storeVectorsLocally = async (vectors) => {
-    // In our architecture, the webhook handles storage directly to MongoDB.
+    // In our architecture, the webhook upserts directly to Postgres (Knex).
     // This function is kept for signature compatibility if needed, or can be a no-op.
     console.log(`[Vector Utils] Helper: passing ${vectors.length} vectors to storage logic.`);
     return true;

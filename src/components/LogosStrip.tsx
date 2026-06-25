@@ -81,11 +81,10 @@ const companies: Company[] = [
 
 const CompanyCard: React.FC<{ company: Company }> = ({ company }) => (
   <motion.div
-    className="flex items-center gap-4 bg-gray-300 border border-gray-400 rounded-full px-6 py-4 flex-shrink-0 hover:bg-gray-300/95 transition-all duration-300"
+    className="flex items-center gap-4 bg-white border border-gray-200 rounded-full px-5 py-3 flex-shrink-0 shadow-sm hover:shadow-md hover:border-purple-200 transition-all duration-300"
     whileHover={{
       scale: 1.05,
       rotate: 1,
-      backgroundColor: "rgba(209, 213, 219, 0.95)"
     }}
     whileTap={{
       scale: [0.98, 1.02, 1],
@@ -106,18 +105,18 @@ const CompanyCard: React.FC<{ company: Company }> = ({ company }) => (
       mass: 1,
     }}
   >
-    <div className="w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-white">
+    <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 border border-gray-100">
       <img
         src={company.logo}
         alt={company.name}
-        className="w-full h-full object-contain p-1"
+        className="w-full h-full object-contain p-1.5"
         onError={(e) => {
           const t = e.target as HTMLImageElement
           t.style.opacity = '0.25'
         }}
       />
     </div>
-    <span className="text-gray-800 font-medium text-sm whitespace-nowrap pr-2">{company.name}</span>
+    <span className="text-gray-700 font-medium text-sm whitespace-nowrap pr-2">{company.name}</span>
   </motion.div>
 )
 

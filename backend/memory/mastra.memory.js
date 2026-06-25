@@ -1,12 +1,24 @@
-import mongoose from 'mongoose';
+import knex from '../db/knex.js';
 
-const agentMemorySchema = new mongoose.Schema({
-    agentName: { type: String, required: true },
-    key: { type: String, required: true },
-    value: { type: mongoose.Schema.Types.Mixed, required: true },
-    context: { type: String }
-}, { timestamps: true });
+const TABLE = 'agent_memory';
 
-agentMemorySchema.index({ agentName: 1, key: 1 });
+/** Most recent memories for an agent, newest first. */
+export async function getAgentMemories(agentName, limit = 5) {
+    return knex(TABLE)
+        .where({ agent_name: agentName })
+        .orderBy('created_at', 'desc')
+        .limit(limit);
+}
 
-export const AgentMemory = mongoose.model('AgentMemory', agentMemorySchema);
+/** Persist a single agent memory row. `value` is stored as JSONB. */
+export async function saveAgentMemory({ agentName, key, value, context }) {
+    const [row] = await knex(TABLE)
+        .insert({
+            agent_name: agentName,
+            key,
+            value: JSON.stringify(value ?? null),
+            context: context ?? null,
+        })
+        .returning('*');
+    return row;
+}

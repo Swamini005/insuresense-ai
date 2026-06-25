@@ -1,64 +1,44 @@
 import { useState, useEffect } from "react"
-import { useLocation, Link, useNavigate } from "react-router-dom"
+import { useLocation, Link, useNavigate, useParams } from "react-router-dom"
 import { ChatWindow, type Message } from "@/components/ChatWindow"
 import { ChatInput, type AgentType } from "@/components/ChatInput"
 import { DashboardNavbar } from "@/components/DashboardNavbar"
 import { Sidebar } from "@/components/Sidebar"
-import { Menu } from "lucide-react"
+import { Menu, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { apiFetch } from "@/lib/api"
+import { useAuth } from "@/context/AuthContext"
 
-const MOCK_RESPONSES: Record<AgentType, string[]> = {
-    Life: [
-        "I can help you understand our term life insurance policies.",
-        "Does your current plan cover critical illnesses?",
-        "Reviewing your life coverage options is a great step for family security."
-    ],
-    Health: [
-        "Are you looking for individual or family health floater plans?",
-        "We have new potential add-ons for maternity coverage.",
-        "Let me check the network hospitals in your city."
-    ],
-    Travel: [
-        "Planning a trip soon? Verify your destination's visa insurance requirements.",
-        "We offer coverage for flight delays and baggage loss.",
-        "Domestic or International travel insurance?"
-    ],
-    Investment: [
-        "Have you considered diversifying with ULIPs?",
-        "Our guaranteed return plans are currently offering 7.2%.",
-        "Let's assess your risk appetite for long-term growth."
-    ]
+// Maps an agent to its backend endpoint. `null` => generic public chat.
+const AGENT_ENDPOINT: Record<AgentType, string> = {
+    Life: "/api/life/chat",
+    Health: "/api/health/chat",
+    Travel: "/api/travel/chat",
+    Investment: "/api/investment/chat",
+    Crypto: "/api/crypto/chat",
 }
 
 export default function ChatPage() {
     const navigate = useNavigate()
     const location = useLocation()
-    const [activeAgent, setActiveAgent] = useState<AgentType | null>(null)
+    const { agentId } = useParams()
+    const { user, logout } = useAuth()
+    
+    // Derive active agent from URL instead of local state
+    const validAgents: AgentType[] = ["Life", "Health", "Travel", "Investment", "Crypto"]
+    const activeAgent = agentId 
+        ? validAgents.find(a => a.toLowerCase() === agentId.toLowerCase()) || null 
+        : null
+
     const [messages, setMessages] = useState<Message[]>([])
     const [isTyping, setIsTyping] = useState(false)
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
-    // Initialize from navigation state if available
+    // Handle legacy navigation state by redirecting to the proper URL
     useEffect(() => {
         if (location.state?.agent) {
             const agent = location.state.agent as AgentType
-            if (agent === "Travel") {
-                navigate("/travel-insurance", { replace: true })
-                return
-            }
-            if (agent === "Health") {
-                navigate("/health-insurance", { replace: true })
-                return
-            }
-            if (agent === "Life") {
-                navigate("/life-insurance", { replace: true })
-                return
-            }
-            if (agent === "Investment") {
-                navigate("/investment-insurance", { replace: true })
-                return
-            }
-            setActiveAgent(agent)
+            navigate(`/chat/${agent.toLowerCase()}`, { replace: true, state: {} })
         }
     }, [location.state, navigate])
 
@@ -75,40 +55,26 @@ export default function ChatPage() {
         setIsTyping(true)
 
         try {
-            let endpoint = "http://localhost:4000/api/chat"
-            if (activeAgent === "Life") endpoint = "http://localhost:4000/api/life/lifeagent"
-            else if (activeAgent === "Health") endpoint = "http://localhost:4000/api/health/healthagent"
-            else if (activeAgent === "Travel") endpoint = "http://localhost:4000/api/travel/travelagent"
-            else if (activeAgent === "Investment") endpoint = "http://localhost:4000/api/investment/investmentagent"
+            const endpoint = activeAgent ? AGENT_ENDPOINT[activeAgent] : "/api/chat"
 
-            const response = await fetch(endpoint, {
+            // Domain agents are protected; the generic chat endpoint is public.
+            const data = await apiFetch<any>(endpoint, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ query: text }),
+                body: { query: text },
+                auth: !!activeAgent,
             })
 
-            if (!response.ok) {
-                throw new Error("Failed to get response")
-            }
-
-            const data = await response.json()
-
-            // Generic chat returns { response: string }
-            // Specific agents return { text: string, sources: ... } or sometimes { response: string } depending on verification (Health returned { response }, Investment { text })
-            // Let's handle both.
-            // Generic chat returns { response: string }
-            // Specific agents return { text: string, products: [], sources: ... }
+            // Generic chat returns { response }. Domain agents return
+            // { response, report, products, sources }.
             const responseText = data.response || data.text || "Sorry, I couldn't process that."
-            const products = data.products || []
 
             const agentResponse: Message = {
                 id: (Date.now() + 1).toString(),
                 text: responseText,
                 sender: "agent",
                 agentName: activeAgent || "Assistant",
-                products: products
+                products: data.products || [],
+                report: data.report || undefined,
             }
 
             setMessages((prev) => [...prev, agentResponse])
@@ -127,8 +93,8 @@ export default function ChatPage() {
     }
 
     const handleChatAgentChange = (newAgent: AgentType) => {
-        // ChatInput allows switching agent within the chat
-        setActiveAgent(newAgent)
+        if (newAgent === activeAgent) return
+        
         if (messages.length > 0) {
             setMessages(prev => [
                 ...prev,
@@ -140,21 +106,20 @@ export default function ChatPage() {
                 }
             ])
         }
+        navigate(`/chat/${newAgent.toLowerCase()}`)
     }
 
     const handleNavbarAgentChange = (agent: AgentType) => {
-        // Navbar navigates to specific pages as per user request
-        if (agent === "Travel") navigate("/travel-insurance")
-        else if (agent === "Health") navigate("/health-insurance")
-        else if (agent === "Life") navigate("/life-insurance")
-        else if (agent === "Investment") navigate("/investment-insurance")
+        handleChatAgentChange(agent)
     }
 
     const handleNewChat = () => {
         setMessages([])
-        setActiveAgent(null)
+        navigate("/chat")
         setIsSidebarOpen(false)
     }
+
+    const firstName = user?.name?.split(" ")[0] || "there"
 
     return (
         <div className="h-screen bg-white flex flex-col font-sans overflow-hidden">
@@ -165,22 +130,27 @@ export default function ChatPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="text-gray-500 hover:bg-gray-100"
+                        className="text-gray-500 hover:bg-gray-100 hidden md:flex"
                     >
                         <Menu className="h-5 w-5" />
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => navigate(-1)}
+                        className="text-gray-500 hover:bg-gray-100"
+                        title="Go Back"
+                    >
+                        <ArrowLeft className="h-5 w-5" />
                     </Button>
 
                     {/* Branding Logo */}
                     <Link to="/" className="flex items-center gap-2 group">
                         <img
-                            src="/insurelogo.jpeg"
+                            src="/assets/insuresense-logo.svg"
                             alt="InsureSense Logo"
                             className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
                         />
-                        <div className="hidden lg:flex text-sm font-semibold tracking-tight gap-0.5">
-                            <span className="text-blue-900">Insure</span>
-                            <span className="text-blue-800">Sense</span>
-                        </div>
                     </Link>
                 </div>
 
@@ -189,25 +159,20 @@ export default function ChatPage() {
                     <DashboardNavbar activeAgent={activeAgent} onAgentChange={handleNavbarAgentChange} />
                 </div>
 
-                {/* Desktop: Right-side Auth Buttons */}
-                <div className="hidden md:flex items-center gap-3 ml-auto">
-                    <Link to="/signin" className="text-sm font-medium text-gray-600 hover:text-purple-600 transition-colors">
-                        Sign In
-                    </Link>
-                    <Link to="/signup">
-                        <Button size="sm" className="rounded-full bg-purple-600 hover:bg-purple-700 text-white shadow-sm">
-                            Sign Up
+                {/* Right-side account control */}
+                <div className="flex items-center gap-3 ml-auto">
+                    {activeAgent && (
+                        <Button 
+                            onClick={() => navigate(`/${activeAgent.toLowerCase()}`)} 
+                            variant="default" 
+                            size="sm" 
+                            className="bg-purple-600 hover:bg-purple-700 text-white hidden sm:flex"
+                        >
+                            Fill {activeAgent} Form
                         </Button>
-                    </Link>
-                </div>
-
-                {/* Mobile: Login/Signup buttons only */}
-                <div className="flex md:hidden gap-2">
-                    <Button variant="ghost" size="sm" className="text-sm">
-                        Login
-                    </Button>
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white text-sm">
-                        Sign up
+                    )}
+                    <Button onClick={logout} variant="ghost" size="sm" className="text-gray-600 hover:text-purple-600">
+                        Sign Out
                     </Button>
                 </div>
             </div>
@@ -218,6 +183,7 @@ export default function ChatPage() {
                     onNewChat={handleNewChat}
                     isOpen={isSidebarOpen}
                     onClose={() => setIsSidebarOpen(false)}
+                    userName={user?.name || undefined}
                 />
 
                 <main className="flex-1 flex flex-col relative bg-white transition-all duration-300">
@@ -227,7 +193,7 @@ export default function ChatPage() {
                             messages={messages}
                             isTyping={isTyping}
                             activeAgent={activeAgent}
-                            greeting="Good evening, Swamini"
+                            greeting={`Hello, ${firstName}`}
                         />
                     </div>
 

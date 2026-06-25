@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 import { projects } from "@/data/projects";
 
 const StackedCards: React.FC = () => {
   const container = useRef<HTMLDivElement | null>(null);
 
-  // Global scroll progress for the entire section
+  // Scroll progress across the whole stacked section.
   const { scrollYProgress } = useScroll({
     target: container,
     offset: ["start start", "end end"],
@@ -14,7 +15,8 @@ const StackedCards: React.FC = () => {
   return (
     <main ref={container} className="relative" role="region" aria-label="How It Works - Feature Overview">
       {projects.map((project, i) => {
-        const targetScale = 1 - (projects.length - i) * 0.05;
+        // Earlier cards shrink slightly as later ones stack on top.
+        const targetScale = 1 - (projects.length - i) * 0.04;
         return (
           <Card
             key={`p_${i}`}
@@ -25,7 +27,7 @@ const StackedCards: React.FC = () => {
             link={project.link}
             color={project.color}
             progress={scrollYProgress}
-            range={[i * 0.25, 1]}
+            range={[i * (1 / projects.length), 1]}
             targetScale={targetScale}
           />
         );
@@ -41,7 +43,7 @@ interface CardProps {
   src: string;
   link: string;
   color: string;
-  progress: any;
+  progress: MotionValue<number>;
   range: [number, number];
   targetScale: number;
 }
@@ -59,60 +61,61 @@ const Card: React.FC<CardProps> = ({
 }) => {
   const container = useRef<HTMLDivElement | null>(null);
 
-  // Per-card scroll progress for image scaling
+  // Per-card progress used to zoom the image as the card enters.
   const { scrollYProgress } = useScroll({
     target: container,
     offset: ["start end", "start start"],
   });
 
-  const imageScale = useTransform(scrollYProgress, [0, 1], [2, 1]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.6, 1]);
   const scale = useTransform(progress, range, [1, targetScale]);
 
   return (
-    <div ref={container} className="h-screen flex items-center justify-center sticky top-0">
+    <div ref={container} className="h-screen flex items-center justify-center sticky top-0 px-4">
       <motion.div
         style={{
-          backgroundColor: color,
           scale,
-          top: i === 0 ? "-25%" : `calc(-25% + ${i * 25}px)`,
+          top: `calc(-5vh + ${i * 28}px)`,
         }}
-        className="relative flex flex-col w-full max-w-4xl h-[500px] rounded-3xl p-12 shadow-2xl origin-top"
+        className="relative flex flex-col w-full max-w-5xl h-[460px] md:h-[480px] rounded-[28px] p-8 md:p-12 shadow-2xl origin-top overflow-hidden text-white"
       >
-        <h2 className="text-center text-2xl md:text-3xl font-bold text-white m-0 mb-12">
-          {title}
-        </h2>
+        {/* Solid brand color with a subtle depth gradient on top */}
+        <div className="absolute inset-0" style={{ backgroundColor: color }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/15" />
 
-        <div className="flex gap-12 h-full mt-12">
-          <div className="w-2/5 relative top-[10%]">
-            <p className="text-white/90 text-base leading-relaxed mb-4">
+        <div className="relative flex items-center gap-3 mb-6">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-sm font-bold backdrop-blur-sm">
+            {String(i + 1).padStart(2, "0")}
+          </span>
+          <span className="text-xs font-semibold uppercase tracking-[0.25em] text-white/80">
+            How it works
+          </span>
+        </div>
+
+        <div className="relative grid md:grid-cols-2 gap-8 md:gap-12 flex-1 min-h-0">
+          {/* Text */}
+          <div className="flex flex-col justify-center">
+            <h3 className="text-2xl md:text-4xl font-bold leading-tight mb-4">
+              {title}
+            </h3>
+            <p className="text-white/90 text-sm md:text-base leading-relaxed mb-6">
               {description}
             </p>
-            <span className="flex items-center gap-2">
-              <a
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs underline cursor-pointer text-white hover:text-white/80 transition-colors"
-              >
-                See more
-              </a>
-              <svg width="22" height="12" viewBox="0 0 22 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path
-                  d="M21.5303 6.53033C21.8232 6.23744 21.8232 5.76256 21.5303 5.46967L16.7574 0.696699C16.4645 0.403806 15.9896 0.403806 15.6967 0.696699C15.4038 0.989592 15.4038 1.46447 15.6967 1.75736L19.9393 6L15.6967 10.2426C15.4038 10.5355 15.4038 11.0104 15.6967 11.3033C15.9896 11.5962 16.4645 11.5962 16.7574 11.3033L21.5303 6.53033ZM0 6.75L21 6.75V5.25L0 5.25L0 6.75Z"
-                  fill="white"
-                />
-              </svg>
-            </span>
+            <a
+              href={link}
+              className="inline-flex items-center gap-2 text-sm font-semibold text-white hover:gap-3 transition-all w-fit"
+            >
+              Learn more
+              <ArrowRight className="h-4 w-4" />
+            </a>
           </div>
 
-          <div className="w-3/5 relative h-full rounded-3xl overflow-hidden">
-            <motion.div
-              className="w-full h-full"
-              style={{ scale: imageScale }}
-            >
+          {/* Image */}
+          <div className="relative h-48 md:h-full rounded-2xl overflow-hidden ring-1 ring-white/20">
+            <motion.div className="w-full h-full" style={{ scale: imageScale }}>
               <img
                 src={src}
-                alt={`${title} - InsureSense feature demonstration`}
+                alt={`${title} - InsureSense feature`}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />

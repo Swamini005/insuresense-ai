@@ -31,9 +31,10 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white relative overflow-hidden">
-      {/* Background orbs removed — page uses plain white background now */}
-      
+    <div className="min-h-screen bg-white relative">
+      {/* NOTE: do NOT add `overflow-hidden` here — it breaks the sticky
+          stacked-cards scroll effect in <StackedCards />. */}
+
       <div className="relative z-10">
         <Navbar />
       

@@ -1,10 +1,8 @@
-
 import * as investmentService from '../services/investment.service.js';
 
 export const postInvestmentDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await investmentService.submitInvestmentDetails(details);
+        const result = await investmentService.submitInvestmentDetails(req.user.id, req.body);
         res.status(200).json({ message: "Investment details saved", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -13,8 +11,7 @@ export const postInvestmentDetails = async (req, res) => {
 
 export const updateInvestmentDetails = async (req, res) => {
     try {
-        const details = req.body;
-        const result = await investmentService.modifyInvestmentDetails(details);
+        const result = await investmentService.modifyInvestmentDetails(req.user.id, req.body);
         res.status(200).json({ message: "Investment details updated", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -30,11 +27,21 @@ export const getNewsInsights = async (req, res) => {
     }
 };
 
-export const queryInvestmentAgent = async (req, res) => {
+export const queryInvestmentChat = async (req, res) => {
     try {
-        const { query } = req.body;
-        const result = await investmentService.askInvestmentAgent(query, req.body.details);
-        res.status(200).json({ response: result.response, report: result.report }); // result already has text and sources
+        const { query, details } = req.body;
+        const result = await investmentService.askInvestmentChat(req.user.id, query, details);
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+export const queryInvestmentRecommendations = async (req, res) => {
+    try {
+        const { query, details } = req.body;
+        const result = await investmentService.askInvestmentRecommendations(req.user.id, query, details);
+        res.status(200).json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -1,11 +1,11 @@
 
-import { getGeminiModel } from './gemini.js';
+import { getGroqModel } from './groq.js';
 
 import { ChatAgent } from '../agent/chat.agent.js';
 
-export const chatWithGemini = async (message) => {
+export const chatWithGroq = async (message) => {
     try {
-        const model = getGeminiModel();
+        const model = getGroqModel({ search: false });
 
         const systemPrompt = "You are a helpful insurance assistant. Answer the user's question concisely.";
         const finalPrompt = `${systemPrompt}\nUser: ${message}`;
@@ -14,7 +14,7 @@ export const chatWithGemini = async (message) => {
         const response = await result.response;
         return response.text();
     } catch (error) {
-        console.error("Error interacting with Gemini:", error);
+        console.error("Error interacting with Groq:", error);
         throw error;
     }
 };

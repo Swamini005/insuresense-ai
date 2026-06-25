@@ -83,18 +83,22 @@ export default function TravelInsurancePage() {
     const handleAgentChange = (agent: AgentType) => {
         if (agent === "Travel") return
         if (agent === "Health") {
-            navigate("/health-insurance")
+            navigate("/health")
             return
         }
         if (agent === "Life") {
-            navigate("/life-insurance")
+            navigate("/life")
             return
         }
         if (agent === "Investment") {
-            navigate("/investment-insurance")
+            navigate("/investment")
             return
         }
-        navigate("/chat", { state: { agent } })
+        if (agent === "Crypto") {
+            navigate("/crypto")
+            return
+        }
+        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (
@@ -112,13 +116,11 @@ export default function TravelInsurancePage() {
 
                     {/* Branding Logo */}
                     <Link to="/" className="flex items-center gap-2 group">
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm shadow-sm transition-transform group-hover:scale-110">
-                            IS
-                        </div>
-                        <div className="hidden lg:flex text-sm font-semibold tracking-tight gap-0.5">
-                            <span className="text-blue-900">Insure</span>
-                            <span className="text-blue-800">Sense</span>
-                        </div>
+                        <img
+                            src="/assets/insuresense-logo.svg"
+                            alt="InsureSense Logo"
+                            className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+                        />
                     </Link>
                 </div>
 

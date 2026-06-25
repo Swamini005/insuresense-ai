@@ -1,14 +1,16 @@
-import { getGeminiModel } from '../lib/gemini.js';
-import { AgentMemory } from '../memory/mastra.memory.js';
+import { getGroqModel } from '../lib/groq.js';
+import { getAgentMemories, saveAgentMemory as persistAgentMemory } from '../memory/mastra.memory.js';
 
 export const processMastraRequest = async (prompt, userId) => {
     try {
-        const model = getGeminiModel();
+        const model = getGroqModel({ search: false });
 
         // Retrieve relevant memory (simple example)
         // In a real agent, this would be RAG or more complex context injection
-        const memories = await AgentMemory.find({ agentName: 'mastra' }).limit(5);
-        const memoryContext = memories.map(m => `${m.key}: ${m.value}`).join('\n');
+        const memories = await getAgentMemories('mastra', 5);
+        const memoryContext = memories
+            .map(m => `${m.key}: ${typeof m.value === 'string' ? m.value : JSON.stringify(m.value)}`)
+            .join('\n');
 
         const fullPrompt = `
         Context:
@@ -29,11 +31,5 @@ export const processMastraRequest = async (prompt, userId) => {
 };
 
 export const saveAgentMemory = async (key, value, context) => {
-    const memory = new AgentMemory({
-        agentName: 'mastra',
-        key,
-        value,
-        context
-    });
-    return await memory.save();
+    return await persistAgentMemory({ agentName: 'mastra', key, value, context });
 };

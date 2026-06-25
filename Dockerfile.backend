@@ -1,0 +1,16 @@
+# ── Backend Dockerfile ──────────────────────────────────────
+FROM node:20-alpine AS base
+
+WORKDIR /app
+
+# Install production dependencies only
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copy backend source and server entry
+COPY server.js knexfile.js ./
+COPY backend/ ./backend/
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]

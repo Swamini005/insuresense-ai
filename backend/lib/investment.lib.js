@@ -1,25 +1,9 @@
-import { InvestmentAgent } from '../agent/investment.agent.js';
-import { getGeminiModel } from './gemini.js';
-
-// Mock store
-let investmentDetailsStore = {};
-
-export const saveInvestmentDetails = async (details) => {
-    console.log("Saving investment details:", details);
-    investmentDetailsStore = { ...investmentDetailsStore, ...details };
-    return investmentDetailsStore;
-};
-
-export const updateInvestmentDetails = async (details) => {
-    console.log("Updating investment details:", details);
-    investmentDetailsStore = { ...investmentDetailsStore, ...details };
-    return investmentDetailsStore;
-};
+import { getGroqModel } from './groq.js';
 
 export const getInvestmentNewsInsights = async () => {
     try {
-        const model = getGeminiModel();
-        const prompt = "Provide the latest investment market news and insights. Format as JSON with title, summary, and source.";
+        const model = getGroqModel();
+        const prompt = "Provide the latest investment market news and insights. Format as simple, clean markdown with bullet points. DO NOT output JSON. DO NOT use arrays. Use standard Markdown headings and lists.";
         const result = await model.generateContent(prompt);
         const response = await result.response;
         return response.text();
@@ -27,8 +11,4 @@ export const getInvestmentNewsInsights = async () => {
         console.error("Error fetching investment news:", error);
         throw error;
     }
-};
-
-export const queryInvestmentAgent = async (query) => {
-    return await InvestmentAgent.run({ input: query, context: investmentDetailsStore });
 };

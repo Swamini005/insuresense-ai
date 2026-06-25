@@ -33,7 +33,7 @@ const slides: Slide[] = [
     subtitle: "Smart Investment Decisions",
     description: "AI-powered portfolio recommendations based on your risk profile and market conditions.",
     cta: "Start Investing",
-    link: "/investment-insurance",
+    link: "/investment",
     img: "/carousel/lets-invest.svg",
     gradient: "from-emerald-500 to-teal-600",
     bg: "bg-gradient-to-br from-emerald-50 to-teal-50"
@@ -44,7 +44,7 @@ const slides: Slide[] = [
     subtitle: "Travel with Confidence",
     description: "Real-time travel risk analysis with instant coverage recommendations for your journey.",
     cta: "Plan Your Trip",
-    link: "/travel-insurance",
+    link: "/travel",
     img: "/carousel/lets-go.svg",
     gradient: "from-blue-500 to-indigo-600",
     bg: "bg-gradient-to-br from-blue-50 to-indigo-50"
@@ -55,7 +55,7 @@ const slides: Slide[] = [
     subtitle: "Health First, Always",
     description: "Comprehensive health monitoring with personalized insurance timing based on wellness data.",
     cta: "Get Protected",
-    link: "/health-insurance",
+    link: "/health",
     img: "/carousel/lets-live.svg",
     gradient: "from-rose-500 to-pink-600",
     bg: "bg-gradient-to-br from-rose-50 to-pink-50"
@@ -66,7 +66,7 @@ const slides: Slide[] = [
     subtitle: "Family Protection Made Easy",
     description: "Unified family coverage with AI that adapts to your family's changing needs.",
     cta: "Protect Family",
-    link: "/life-insurance",
+    link: "/life",
     img: "/carousel/lets-care.svg",
     gradient: "from-purple-500 to-violet-600",
     bg: "bg-gradient-to-br from-purple-50 to-violet-50"

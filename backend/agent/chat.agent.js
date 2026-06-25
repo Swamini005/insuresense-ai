@@ -1,4 +1,4 @@
-import { getGeminiModel } from "../lib/gemini.js";
+import { getGroqModel } from "../lib/groq.js";
 
 export const ChatAgent = {
     name: "chat-agent",
@@ -17,7 +17,7 @@ Instructions:
 3. Return a helpful text response.
     `.trim();
 
-        const result = await getGeminiModel().generateContent(finalPrompt);
+        const result = await getGroqModel().generateContent(finalPrompt);
         return { text: result.response.text() };
     }
 };

@@ -1,13 +1,4 @@
-import mongoose from 'mongoose';
-
-// Travel collection names in MongoDB
-const TRAVEL_COLLECTION_NAMES = [
-    'Alpha_travel_comp',
-    'bridge_travel',
-    'grand_traveller',
-    'mortage_travel',
-    'sortedtrav_travel',
-];
+import knex from '../db/knex.js';
 
 
 // ---------------------------------------------------------------------------
@@ -73,41 +64,27 @@ function formatDocForLLM(doc, collectionName = '') {
 // ---------------------------------------------------------------------------
 
 /**
- * Load all travel company-product data from MongoDB (all travel collections)
- * and return a single string suitable for injection into an LLM prompt.
+ * Load all travel insurance product data from Postgres (travel_products.data
+ * JSONB documents) and return a single string suitable for LLM prompt injection.
  *
- * @param {Object} [opts] - Optional: { connect: true } to ensure DB connect
  * @returns {Promise<string>} - Formatted travel product data for LLM context
  */
-export async function loadTravelMemoryForLLM(opts = {}) {
-    if (opts.connect) {
-        const mongoUri = process.env.MONGODB_URI || "mongodb+srv://Admin:Aayu0508@cluster0.e6xave1.mongodb.net/";
-        if (!mongoUri) throw new Error('MongoDB URI not found');
-        if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(mongoUri);
-        }
-    }
-
-    const db = mongoose.connection?.db;
-    if (!db) throw new Error('MongoDB not connected');
+export async function loadTravelMemoryForLLM() {
+    const rows = await knex('travel_products').select('source', 'data');
 
     const allBlocks = [];
 
-    for (const collName of TRAVEL_COLLECTION_NAMES) {
-        const docs = await db.collection(collName).find({}).toArray();
-        for (const doc of docs) {
-            const toFormat = Array.isArray(doc.data) ? doc.data
-                : Array.isArray(doc.products) ? doc.products
-                : [doc];
-            for (const d of toFormat) {
-                const block = formatDocForLLM(d, collName);
-                if (block?.trim()) allBlocks.push(block);
-            }
+    for (const row of rows) {
+        const doc = row.data;
+        const toFormat = Array.isArray(doc?.data) ? doc.data
+            : Array.isArray(doc?.products) ? doc.products
+            : [doc];
+        for (const d of toFormat) {
+            const block = formatDocForLLM(d, row.source);
+            if (block?.trim()) allBlocks.push(block);
         }
     }
 
     if (!allBlocks.length) return 'No travel insurance product data in memory.';
     return allBlocks.join('\n---\n');
 }
-
-export { TRAVEL_COLLECTION_NAMES };

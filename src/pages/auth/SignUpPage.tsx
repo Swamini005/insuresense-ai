@@ -1,15 +1,19 @@
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CustomSelect } from "@/components/ui/custom-select"
 import { Navbar } from "@/components/Navbar"
+import { useAuth } from "@/context/AuthContext"
 
 export default function SignUpPage() {
+    const navigate = useNavigate()
+    const { signup } = useAuth()
     const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState("")
     const [formData, setFormData] = useState({
         username: "",
         firstName: "",
@@ -42,17 +46,21 @@ export default function SignUpPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setError("")
         if (formData.password !== formData.confirmPassword) {
-            alert("Passwords do not match!")
+            setError("Passwords do not match!")
             return
         }
         setIsLoading(true)
-        // Mock API call
-        setTimeout(() => {
+        try {
+            const name = `${formData.firstName} ${formData.lastName}`.trim() || formData.username
+            await signup(formData.email, formData.password, name)
+            navigate("/chat", { replace: true })
+        } catch (err: any) {
+            setError(err.message || "Sign up failed")
+        } finally {
             setIsLoading(false)
-            alert("Sign up successful! (Mock)")
-            console.log("Form Data Submitted:", formData)
-        }, 1500)
+        }
     }
 
     return (
@@ -70,6 +78,12 @@ export default function SignUpPage() {
                     <h1 className="text-3xl font-bold tracking-tight text-primary">Create an Account</h1>
                     <p className="text-muted-foreground">Join us today! Enter your details below.</p>
                 </div>
+
+                {error && (
+                    <div className="rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3">
+                        {error}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Personal Info Grid */}

@@ -1,82 +1,81 @@
-import { getGeminiModel } from "../lib/gemini.js";
-import { InvestmentMemory } from "../memory/investment.memory.js";
+import { getGroqModel } from "../lib/groq.js";
+import { getRecentInvestmentNews } from "../memory/investment.memory.js";
 
 export const InvestmentAgent = {
   name: "investment-agent",
   description: "Expert investment analyst agent using recent investment news",
 
-  run: async ({ input, context }) => {
+  chat: async ({ input, context }) => {
     if (!input) throw new Error("Prompt is required");
-
-    const allMemories = await InvestmentMemory.find({}).sort({ publishedAt: -1 }).limit(10).lean();
-
-    const contextText = allMemories.length === 0
-      ? "No investment news in memory."
-      : allMemories
-        .map(m => `
-Title: ${m.title ?? "—"}
-Source: ${m.publisher ?? "—"}
-URL: ${m.publisherUrl ?? "—"}
-Content: ${m.contentSnippet || m.content || "—"}
-          `.trim())
-        .join("\n---\n");
-
     const userProfileText = context ? JSON.stringify(context, null, 2) : "No user profile available.";
 
     const finalPrompt = `
-You are an expert investment analyst agent.
-Your goal is to provide personalized investment advice and recommend specific investment products based on the user's profile and recent news.
+You are an expert, helpful financial investment agent.
+Your goal is to answer the user's query conversationally and providing guidance.
 
-Recent Investment News:
-${contextText}
+User Profile Context:
+${userProfileText}
+
+User Query:
+${input}
+
+Instructions:
+1. Provide a direct, friendly, and helpful text response to their query.
+2. DO NOT output JSON. Use standard markdown paragraphs and lists.
+    `.trim();
+
+    const result = await getGroqModel({ responseFormat: 'text' }).generateContent(finalPrompt);
+    return { text: result.response.text(), products: [], sources: [] };
+  },
+
+  recommend: async ({ input, context }) => {
+    if (!input) throw new Error("Prompt is required");
+    const userProfileText = context ? JSON.stringify(context, null, 2) : "No user profile available.";
+
+    const finalPrompt = `
+You are an expert financial investment agent.
+Your goal is to recommend specific investment options (Mutual Funds, FDs, ETFs) based on the user's profile.
 
 User Profile:
 ${userProfileText}
 
-User User Question:
+User Request:
 ${input}
 
 Instructions:
-1. Analyze the user's profile (risk appetite, goals, income, etc.) and the news.
-2. Answer the user's question.
-3. USE GOOGLE SEARCH to find REAL, LIVE, and CURRENT investment products available in India that fit their profile. Do NOT makeup fake products.
-4. Return ONLY a valid JSON object with the following structure:
+1. Analyze the user's profile.
+2. Recommend real, current investment vehicles in India.
+3. Return ONLY a valid JSON object matching exactly this structure:
 {
-  "text": "Your personalized advice here...",
+  "text": "Your personalized advice...",
   "products": [
     {
       "id": "unique_id",
-      "name": "Exact Product Name found via Search",
-      "description": "Short description and why it fits",
-      "price": "Current NAV / Min SIP / Returns"
+      "name": "Exact Fund Name",
+      "description": "Why it fits",
+      "price": "Approx Return/Yield"
     }
   ]
 }
     `.trim();
 
-    const result = await getGeminiModel().generateContent(finalPrompt);
+    const result = await getGroqModel({ responseFormat: 'json_object' }).generateContent(finalPrompt);
     const textResponse = result.response.text();
 
     try {
-      // Clean markdown blocks if present
       const jsonStr = textResponse.replace(/^```json\n|\n```$/g, "").trim();
       const parsed = JSON.parse(jsonStr);
       return {
         text: parsed.text,
         products: parsed.products || [],
-        sources: allMemories.slice(0, 5).map(c => ({
-          title: c.title,
-          url: c.publisherUrl
-        }))
+        sources: []
       };
     } catch (e) {
-      console.error("Failed to parse JSON from agent:", textResponse);
+      console.error("Failed to parse JSON from investment agent:", textResponse);
       return {
-        text: textResponse, // Fallback to raw text
-        sources: allMemories.slice(0, 5).map(c => ({
-          title: c.title,
-          url: c.publisherUrl
-        }))
+        text: textResponse,
+        products: [],
+        sources: []
       };
     }
   }

@@ -1,9 +1,11 @@
-import { getGeminiModel } from "../lib/gemini.js";
+import { getGroqModel } from "../lib/groq.js";
 
 const AGENT_LABELS = {
   travel: "Travel Insurance",
   health: "Health Insurance",
   investment: "Investment",
+  life: "Life Insurance",
+  crypto: "Crypto",
 };
 
 const DEFAULT_INSTRUCTIONS = {
@@ -26,6 +28,20 @@ const DEFAULT_INSTRUCTIONS = {
 3. **Risks and fit** – What to watch and why this is still the right breakthrough for their profile.
 4. **Action plan** – Concrete next steps: how much to invest, where, in what order, and any follow-up (e.g. rebalance, top-up).
 5. **Bottom line** – One crisp paragraph: why this plan works for this specific user and gives them a complete breakthrough for their financial goals.`,
+
+  life: `You are writing a COMPLETE BREAKTHROUGH REPORT for a life insurance buyer. Based on the agent's suggestion and the user's profile (age, income, dependents, goals, risk, payout preference), explain:
+1. **Why this plan fits them** – Map the suggested term/life plan to their age, income, dependents, and payout preference.
+2. **Cover & premium breakdown** – Reason about an appropriate sum assured, likely premium range, and value for the price.
+3. **Risks and fit** – Riders worth considering, claim settlement, and why this is still the right breakthrough for their profile.
+4. **Action plan** – When to buy, documents, medicals/declarations, and first steps after buying.
+5. **Bottom line** – One crisp paragraph: why this plan works for this specific user and protects their dependents.`,
+
+  crypto: `You are writing a COMPLETE BREAKTHROUGH REPORT for a crypto investor. Based on the agent's suggestion (and any recent news/sources) and the user's profile (goals, horizon, amount, risk, experience), explain:
+1. **Why this strategy fits them** – Map the suggestion to their goal, time horizon, amount, risk appetite, and experience level.
+2. **Allocation & value breakdown** – How the suggested assets/products balance growth vs. risk for their situation.
+3. **Risks and fit** – Be explicit about volatility, security, and regulatory risk; note this is informational, not financial advice.
+4. **Action plan** – Concrete next steps: how much to allocate, where, in what order, and any follow-up (e.g. DCA, rebalance, custody).
+5. **Bottom line** – One crisp paragraph: why this approach works for this specific user and their goals.`,
 };
 
 function getInstructions(agentType) {
@@ -95,7 +111,7 @@ ${formatDetails(userDetails)}
 Write the full report in clear sections (use the structure from the instructions). Use plain text or simple markdown. Be specific to this user—tie every point to their situation. End with the "Bottom line" paragraph.
 `.trim();
 
-    const model = getGeminiModel();
+    const model = getGroqModel({ search: false });
     const result = await model.generateContent(prompt);
     const report = result.response.text();
 

@@ -1,13 +1,4 @@
-import mongoose from 'mongoose';
-
-// Health collection names in MongoDB
-const HEALTH_COLLECTION_NAMES = [
-    'Alpha_health_insurance',
-    'bridge_health_insurance',
-    'grand_health_insurance',
-    'mortage_health_insurance',
-    'sortedtrav_health_insurance'
-];
+import knex from '../db/knex.js';
 
 // ---------------------------------------------------------------------------
 // Format a single health plan for LLM context
@@ -140,41 +131,27 @@ function formatDocForLLM(doc, collectionName = '') {
 // ---------------------------------------------------------------------------
 
 /**
- * Load all health insurance data from MongoDB (all health collections)
- * and return a single string suitable for injection into an LLM prompt.
+ * Load all health insurance product data from Postgres (health_products.data
+ * JSONB documents) and return a single string suitable for LLM prompt injection.
  *
- * @param {Object} [opts] - Optional: { connect: true } to ensure DB connect
  * @returns {Promise<string>} - Formatted health product data for LLM context
  */
-export async function loadHealthMemoryForLLM(opts = {}) {
-    if (opts.connect) {
-        const mongoUri = process.env.MONGODB_URI || "mongodb+srv://Admin:Aayu0508@cluster0.e6xave1.mongodb.net/";
-        if (!mongoUri) throw new Error('MongoDB URI not found');
-        if (mongoose.connection.readyState !== 1) {
-            await mongoose.connect(mongoUri);
-        }
-    }
-
-    const db = mongoose.connection?.db;
-    if (!db) throw new Error('MongoDB not connected');
+export async function loadHealthMemoryForLLM() {
+    const rows = await knex('health_products').select('source', 'data');
 
     const allBlocks = [];
 
-    for (const collName of HEALTH_COLLECTION_NAMES) {
-        const docs = await db.collection(collName).find({}).toArray();
-        for (const doc of docs) {
-            const toFormat = Array.isArray(doc.data) ? doc.data
-                : Array.isArray(doc.products) ? doc.products
-                : [doc];
-            for (const d of toFormat) {
-                const block = formatDocForLLM(d, collName);
-                if (block?.trim()) allBlocks.push(block);
-            }
+    for (const row of rows) {
+        const doc = row.data;
+        const toFormat = Array.isArray(doc?.data) ? doc.data
+            : Array.isArray(doc?.products) ? doc.products
+            : [doc];
+        for (const d of toFormat) {
+            const block = formatDocForLLM(d, row.source);
+            if (block?.trim()) allBlocks.push(block);
         }
     }
 
     if (!allBlocks.length) return 'No health insurance product data in memory.';
     return allBlocks.join('\n---\n');
 }
-
-export { HEALTH_COLLECTION_NAMES };

@@ -1,57 +1,72 @@
 import { HealthAgent } from '../agent/health.agent.js';
 import { SummarizerAgent } from '../agent/summarizer.agent.js';
 import * as healthLib from '../lib/health.lib.js';
+import { getProfile, upsertProfile } from '../models/profile.model.js';
 
-export const submitHealthDetails = async (details) => {
+const DOMAIN = 'health';
+const REQUIRED_FIELDS = [
+    'healthIntent', 'coverageType', 'city', 'state',
+    'hasPreExisting', 'sumInsured', 'hospitalPref', 'timeline'
+];
+
+const isBlank = (v) => v === undefined || v === null || v === '';
+
+export const submitHealthDetails = async (userId, details) => {
     if (!details) throw new Error("Health details are required");
 
-    // Validation based on frontend fields
-    const requiredFields = [
-        'healthIntent', 'coverageType',
-        'city', 'state', 'hasPreExisting',
-        'sumInsured', 'hospitalPref', 'timeline'
-    ];
-
-    const missing = requiredFields.filter(field => !details[field]);
+    const missing = REQUIRED_FIELDS.filter((field) => isBlank(details[field]));
     if (missing.length > 0) {
         throw new Error(`Missing required fields: ${missing.join(', ')}`);
     }
 
-    // Validate structured fields
     if (!Array.isArray(details.familyMembers)) {
-        // Warning or default to empty array? Frontend initializes as []
         details.familyMembers = [];
     }
 
-    if (details.lifestyle && typeof details.lifestyle === 'object') {
-        const { smoking, alcohol, activity } = details.lifestyle;
-        // Basic check if needed
-    }
-
-    return await healthLib.saveHealthDetails(details);
+    return await upsertProfile(userId, DOMAIN, details);
 };
 
-export const modifyHealthDetails = async (details) => {
+export const modifyHealthDetails = async (userId, details) => {
     if (!details) throw new Error("Health details are required for update");
-    // Similar validation can be applied here
-    return await healthLib.updateHealthDetails(details);
+    const current = (await getProfile(userId, DOMAIN)) || {};
+    return await upsertProfile(userId, DOMAIN, { ...current, ...details });
 };
 
 export const fetchNewsInsights = async () => {
     return await healthLib.getHealthNewsInsights();
 };
 
-export const askHealthAgent = async (query, details) => {
+export const askHealthChat = async (userId, query, inlineDetails) => {
     if (!query) throw new Error("Query is required");
+    const details = inlineDetails ?? (await getProfile(userId, DOMAIN)) ?? undefined;
+    
+    // For pure chat, we bypass the summarizer and don't expect products
+    const agentResponse = await HealthAgent.chat({ input: query, context: details });
+    
+    return {
+        response: agentResponse.text,
+        products: [],
+        sources: []
+    };
+};
 
-    const agentResponse = await HealthAgent.run({ input: query });
+export const askHealthRecommendations = async (userId, query, inlineDetails) => {
+    if (!query) throw new Error("Query is required");
+    const details = inlineDetails ?? (await getProfile(userId, DOMAIN)) ?? undefined;
+
+    const agentResponse = await HealthAgent.recommend({ input: query, context: details });
 
     const { report } = await SummarizerAgent.run({
-        agentType: "health",
+        agentType: DOMAIN,
         agentResponse,
         userQuery: query,
-        userDetails: details ?? undefined,
+        userDetails: details,
     });
 
-    return { response: agentResponse.text, report };
+    return {
+        response: agentResponse.text,
+        report,
+        products: agentResponse.products ?? [],
+        sources: agentResponse.sources ?? [],
+    };
 };

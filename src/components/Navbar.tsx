@@ -39,14 +39,10 @@ export function Navbar() {
           {/* Logo (clickable) */}
           <a href="/" className="flex items-center gap-3 group">
             <img
-              src="/insurelogo.jpeg"
+              src="/assets/insuresense-logo.svg"
               alt="InsureSense Logo"
-              className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
             />
-            <div className="text-lg font-semibold tracking-tight flex gap-1">
-              <span className="text-blue-900 group-hover:text-blue-800">Insure</span>
-              <span className="text-blue-800 group-hover:text-blue-700">Sense</span>
-            </div>
           </a>
 
           {/* Desktop Navigation - Centered */}
