@@ -113,7 +113,6 @@ export default function InvestmentPage() {
             navigate("/crypto")
             return
         }
-        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (

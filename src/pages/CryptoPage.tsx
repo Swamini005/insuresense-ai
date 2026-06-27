@@ -67,7 +67,6 @@ export default function CryptoPage() {
         if (agent === "Health") { navigate("/health"); return }
         if (agent === "Life") { navigate("/life"); return }
         if (agent === "Investment") { navigate("/investment"); return }
-        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (

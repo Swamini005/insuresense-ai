@@ -114,7 +114,6 @@ export default function HealthInsurancePage() {
             navigate("/crypto")
             return
         }
-        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (

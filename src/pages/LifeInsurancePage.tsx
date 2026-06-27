@@ -115,7 +115,6 @@ export default function LifeInsurancePage() {
             navigate("/crypto")
             return
         }
-        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (

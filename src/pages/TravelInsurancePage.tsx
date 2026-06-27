@@ -98,7 +98,6 @@ export default function TravelInsurancePage() {
             navigate("/crypto")
             return
         }
-        navigate(`/chat/${agent.toLowerCase()}`)
     }
 
     return (
