@@ -43,6 +43,10 @@ knex.raw('select 1')
     .then(() => console.log('✅ Postgres connected'))
     .catch(err => console.error('❌ Postgres connection error:', err.message));
 
+// Healthcheck (used by Coolify/load balancers — must not depend on auth or DB)
+app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/', (req, res) => res.json({ status: 'InsureSense API running' }));
+
 // Routes
 app.use('/api/auth', authRoutes);
 // app.use('/api/mastra', mastraRoutes); // Commenting out until mastra is fully setup if needed, or keep it.
@@ -65,5 +69,5 @@ app.use((err, req, res, next) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🌐 CORS origin: ${CORS_ORIGIN}`);
+    console.log(`🌐 CORS origins: ${CORS_ORIGINS.join(', ')}`);
 });
