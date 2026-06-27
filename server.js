@@ -23,10 +23,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // ── CORS ───────────────────────────────────────────────────
-const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+// CORS_ORIGIN may be a comma-separated list (e.g. prod Vercel URL + local dev).
+const CORS_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+    .split(',')
+    .map(o => o.trim())
+    .filter(Boolean);
 
 app.use(cors({
-    origin: CORS_ORIGIN,
+    origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
